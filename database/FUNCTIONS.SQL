@@ -1,0 +1,1 @@
+-- Función de encriptación de contraseña
