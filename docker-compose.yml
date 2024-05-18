@@ -1,1 +1,40 @@
-version: 1.0.0
+version: '3.8'
+
+services:
+
+  pg_runaterrans:
+    image: postgres:latest
+    container_name: pg_runaterrans
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DATABASE: runaterrans
+      POSTGRES_PASSWORD: root
+      POSTGRES_ROOT_PASSWORD: root
+    volumes:
+      - ./database/CREATE.SQL:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  #! Forma de llenar la base de datos con las tablas
+  #? sudo docker cp database/CREATE.SQL <conteinerName>:<Ruta>     
+  #? sudo docker exec -it <conteinerID> bash
+  #? psql -U postgres -d runaterrans < CREATE.SQL
+
+  #web_api_nest_runaterrans:
+  #  image: web_api_nest_runaterrans
+  #  build: .
+  #  restart: always
+  #  depends_on: [pg_runaterrans]
+  #  ports:
+  #    - "8000:8000"
+
+volumes:
+  #web_data:
+  db_data: 
+    driver: local
+    driver_opts:
+      type: none
+      device: /data/db_data
+      o: bind
