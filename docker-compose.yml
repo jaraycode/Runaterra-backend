@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
 
@@ -11,9 +11,10 @@ services:
       POSTGRES_DATABASE: runaterrans
       POSTGRES_PASSWORD: root
       POSTGRES_ROOT_PASSWORD: root
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./database/CREATE.SQL:/docker-entrypoint-initdb.d/init.sql
-      - db_data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
 
@@ -22,13 +23,17 @@ services:
   #? sudo docker exec -it <conteinerID> bash
   #? psql -U postgres -d runaterrans < CREATE.SQL
 
-  #web_api_nest_runaterrans:
-  #  image: web_api_nest_runaterrans
-  #  build: .
-  #  restart: always
-  #  depends_on: [pg_runaterrans]
-  #  ports:
-  #    - "8000:8000"
+  web_api_nest_runaterrans:
+    container_name: web_api_nest_runaterrans
+    image: web_api_nest_runaterrans
+    build: 
+      context: .
+      dockerfile: DOCKERFILE
+    restart: always
+    depends_on: [pg_runaterrans]
+    ports:
+      - "8000:8000"
+    
 
 volumes:
   #web_data:
@@ -36,5 +41,5 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /data/db_data
+      device: ./postgres-data
       o: bind

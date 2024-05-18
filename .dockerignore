@@ -1,0 +1,7 @@
+node_modules
+dist
+Informe
+database
+DOCKERFILE
+.dockerignore
+DiagramaERProyectoFI2024GreenieMetric.dia
