@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Unique } from "@src/common/decorator/nestjs-unique-constraints-validator";
 import { UserRole } from "@src/constants";
 import { isUniqueDb } from "@youba/nestjs-dbvalidator";
 import {
@@ -26,7 +27,11 @@ export class CreateUserDto {
 
   @ApiProperty({ example: "admin@gmail.com", required: true })
   @IsNotEmpty()
-  @Validate(isUniqueDb, ["user", "email", "El correo ya existe"])
+  @isUniqueDb({
+    table: "user",
+    column: "email",
+    message: "El correo ya existe",
+  })
   @IsEmail()
   email: string;
 

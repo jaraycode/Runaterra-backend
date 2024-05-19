@@ -4,21 +4,24 @@ import { UsersController } from "./users.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
 import { DbValidatorsModule } from "@youba/nestjs-dbvalidator";
-import { envData } from "@src/config/typeorm";
+import { ConfigService } from "@nestjs/config";
+
+const configService = new ConfigService();
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     DbValidatorsModule.register({
       type: "postgres",
-      host: envData.DATABASE_HOST,
-      port: parseInt(envData.DATABASE_PORT),
-      username: envData.DATABASE_USERNAME,
-      password: envData.DATABASE_PASSWORD,
-      database: envData.DATABASE_NAME,
+      host: configService.get("DATABASE_HOST"),
+      port: configService.get("DATABASE_PORT"),
+      username: configService.get("DATABASE_USERNAME"),
+      password: configService.get("DATABASE_PASSWORD"),
+      database: configService.get("DATABASE_NAME"),
     }),
   ],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}
