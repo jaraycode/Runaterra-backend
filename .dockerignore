@@ -5,3 +5,4 @@ database
 DOCKERFILE
 .dockerignore
 DiagramaERProyectoFI2024GreenieMetric.dia
+.env
