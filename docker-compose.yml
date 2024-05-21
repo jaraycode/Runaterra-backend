@@ -7,9 +7,9 @@ services:
     container_name: pg_runaterrans
     restart: always
     environment:
-      POSTGRES_USER: runaterrans
+      POSTGRES_USER: jonasaray
       POSTGRES_DB: runaterrans
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: jaray1234
       POSTGRES_ROOT_PASSWORD: root
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
@@ -30,9 +30,10 @@ services:
       context: .
       dockerfile: DOCKERFILE
     restart: always
-    depends_on: [pg_runaterrans]
+    depends_on: 
+      - pg_runaterrans
     ports:
-      - "8000:3000"
+      - "3000:3000"
     
 
 volumes:
