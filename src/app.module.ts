@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import typeorm from "./config/typeorm";
 import { UsersModule } from "./core/users/users.module";
 import { AuthModule } from "./core/auth/auth.module";
+import { DptosModule } from "./core/dptos/dptos.module";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from "./core/auth/auth.module";
     }),
     UsersModule,
     AuthModule,
+    DptosModule,
   ],
   controllers: [AppController],
   providers: [

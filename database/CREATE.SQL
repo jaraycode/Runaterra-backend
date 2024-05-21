@@ -3,15 +3,37 @@
 CREATE TABLE IF NOT EXISTS indicador(
     indicador_id SERIAL NOT NULL,
     nombre VARCHAR(50) NOT NULL,
+    indice VARCHAR(2) NOT NULL,
     descripcion TEXT,
     CONSTRAINT pk_indicador PRIMARY KEY (indicador_id)
+);
+
+CREATE TABLE IF NOT EXISTS categoria(
+    categoria_id SERIAL NOT NULL,
+    indicador_id INTEGER NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    descripcion TEXT, 
+    CONSTRAINT fk_indicador_c FOREIGN KEY (indicador_id) REFERENCES indicador(indicador_id),
+    CONSTRAINT pk_categoria PRIMARY KEY (categoria_id, indicador_id)
+);
+
+CREATE TABLE IF NOT EXISTS criterio(
+    criterio_id SERIAL NOT NULL,
+    indicador_id INTEGER NOT NULL,
+    categoria_id INTEGER NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    indice VARCHAR(2) NOT NULL,
+    descripcion TEXT,
+    CONSTRAINT fk_indicador FOREIGN KEY (indicador_id) REFERENCES indicador(indicador_id),
+    CONSTRAINT fk_categoria FOREIGN KEY (categoria_id) REFERENCES categoria(categoria_id),
+    CONSTRAINT pk_criterio PRIMARY KEY (criterio_id, indicador_id, categoria_id)
 );
 
 CREATE TABLE IF NOT EXISTS usuario(
     usuario_id SERIAL NOT NULL,
     nombre VARCHAR(50) NOT NULL,
     correo VARCHAR(50) NOT NULL,
-    password VARCHAR(50) NOT NULL,
+    pass VARCHAR(50) NOT NULL,
     rol VARCHAR(10) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     CONSTRAINT check_rol CHECK (rol in ('admin', 'dpto', 'salcedo')),
@@ -37,25 +59,6 @@ CREATE TABLE IF NOT EXISTS aporteDeInformacion(
     usuario_id NUMERIC NOT NULL,
     fecha_hora TIMESTAMP NOT NULL,
     descripcion TEXT
-);
-
-CREATE TABLE IF NOT EXISTS criterio(
-    criterio_id SERIAL NOT NULL,
-    indicador_id INTEGER NOT NULL,
-    nombre VARCHAR(50),
-    descripcion TEXT,
-    CONSTRAINT fk_indicador FOREIGN KEY (indicador_id) REFERENCES indicador(indicador_id),
-    CONSTRAINT pk_criterio PRIMARY KEY (criterio_id, indicador_id)
-);
-
-CREATE TABLE IF NOT EXISTS categoria(
-    categoria_id SERIAL NOT NULL,
-    indicador_id INTEGER NOT NULL,
-    criterio_id INTEGER NOT NULL,
-    nombre VARCHAR(50) NOT NULL,
-    descripcion TEXT, 
-    CONSTRAINT fk_indicador_criterio FOREIGN KEY (indicador_id, criterio_id) REFERENCES criterio(indicador_id, criterio_id),
-    CONSTRAINT pk_categoria PRIMARY KEY (categoria_id, indicador_id, criterio_id)
 );
 
 CREATE TABLE IF NOT EXISTS categoria_dpto(
