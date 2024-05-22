@@ -15,13 +15,14 @@ import {
 import { DptosService } from "./services/dptos.service";
 import { CreateDptoDto } from "./dto/create-dpto.dto";
 import { UpdateDptoDto } from "./dto/update-dpto.dto";
-import { ApiResponse } from "@nestjs/swagger";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Dpto } from "./entities/dpto.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { ResponseDptosDto, ResponseUpdateDptos } from "./response/interceptorResponse";
 import * as express from "express";
 import { ResponseDelete } from "@src/common/response/response";
 
+@ApiTags("dptos")
 @Controller("dptos")
 export class DptosController {
   constructor(private readonly dptosService: DptosService) {}
@@ -76,7 +77,7 @@ export class DptosController {
     try {
       const user = await this.dptosService.update(+id, updateDptoDto);
       return res.status(HttpStatus.OK).json({
-        message: "Usuario actualizado con exito",
+        message: "Departamento actualizado con exito",
         data: user,
       });
     } catch (error) {
