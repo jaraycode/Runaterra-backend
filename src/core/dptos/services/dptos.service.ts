@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateDptoDto } from "../dto/create-dpto.dto";
 import { UpdateDptoDto } from "../dto/update-dpto.dto";
 import { Dpto } from "../entities/dpto.entity";
@@ -13,9 +13,7 @@ export class DptosService {
   ) {}
 
   async create(createDptoDto: CreateDptoDto): Promise<Dpto> {
-    const newDpto = new Dpto();
-    newDpto.nombre = createDptoDto.name;
-    return await this.dptoRepository.save(newDpto);
+    return await this.dptoRepository.save(createDptoDto);
   }
 
   async findAll(): Promise<Dpto[]> {
@@ -26,11 +24,35 @@ export class DptosService {
     return this.dptoRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, updateDptoDto: UpdateDptoDto) {
-    return `This action updates a #${id} dpto`;
+  async update(id: number, updateDptoDto: UpdateDptoDto): Promise<Dpto> {
+    const department = await this.findOne(id);
+
+    if (!department) {
+      throw new NotFoundException("Departamento no encontrado");
+    }
+
+    const resultado = await this.dptoRepository.update(id, updateDptoDto);
+
+    if (resultado.affected === 0) {
+      throw new NotFoundException("La actualización del departamento no se pudo realizar");
+    }
+
+    return await this.findOne(id);
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} dpto`;
+    const department = await this.findOne(id);
+
+    if (!department) {
+      throw new NotFoundException("Departamento no encontrado");
+    }
+
+    const resultado = await this.dptoRepository.softDelete(id);
+
+    if (resultado.affected === 0) {
+      throw new NotFoundException("La eliminación del departamento no se pudo realizar");
+    }
+
+    return;
   }
 }

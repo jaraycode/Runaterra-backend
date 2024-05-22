@@ -9,7 +9,7 @@ export class Dpto {
 
   @ApiProperty()
   @Column({ nullable: false })
-  nombre: string;
+  name: string;
 
   @CreateDateColumn({ type: "timestamptz" })
   createDate: Date;
