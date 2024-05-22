@@ -20,5 +20,6 @@ import { Dpto } from "./entities/dpto.entity";
   ],
   controllers: [DptosController],
   providers: [DptosService],
+  exports: [DptosService],
 })
 export class DptosModule {}

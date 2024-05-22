@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Unique } from "@src/common/decorator/nestjs-unique-constraints-validator";
 import { UserRole } from "@src/constants";
+import { Dpto } from "@src/core/dptos/entities/dpto.entity";
 import { isUniqueDb } from "@youba/nestjs-dbvalidator";
 import {
   IsDateString,
@@ -55,4 +56,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsDateString()
   birthdate: string;
+
+  @ApiProperty()
+  departamentId: number;
 }

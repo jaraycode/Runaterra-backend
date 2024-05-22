@@ -4,6 +4,9 @@ import { UpdateDptoDto } from "../dto/update-dpto.dto";
 import { Dpto } from "../entities/dpto.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { PageDto } from "@src/common/dto/page.dto";
+import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 
 @Injectable()
 export class DptosService {
@@ -16,8 +19,17 @@ export class DptosService {
     return await this.dptoRepository.save(createDptoDto);
   }
 
-  async findAll(): Promise<Dpto[]> {
-    return this.dptoRepository.find();
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Dpto>> {
+    const queryBuilder = await this.dptoRepository.createQueryBuilder("dpto");
+
+    queryBuilder.orderBy("dpto.createdAt", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   async findOne(id: number): Promise<Dpto> {

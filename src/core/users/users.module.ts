@@ -5,12 +5,14 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
 import { DbValidatorsModule } from "@youba/nestjs-dbvalidator";
 import { ConfigService } from "@nestjs/config";
+import { DptosModule } from "../dptos/dptos.module";
 
 const configService = new ConfigService();
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    DptosModule,
     DbValidatorsModule.register({
       type: "postgres",
       host: configService.get("DATABASE_HOST"),

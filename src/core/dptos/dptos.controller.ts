@@ -11,17 +11,21 @@ import {
   BadRequestException,
   Res,
   NotFoundException,
+  Query,
 } from "@nestjs/common";
 import { DptosService } from "./services/dptos.service";
 import { CreateDptoDto } from "./dto/create-dpto.dto";
 import { UpdateDptoDto } from "./dto/update-dpto.dto";
-import { ApiResponse } from "@nestjs/swagger";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Dpto } from "./entities/dpto.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { ResponseDptosDto, ResponseUpdateDptos } from "./response/interceptorResponse";
 import * as express from "express";
 import { ResponseDelete } from "@src/common/response/response";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { ApiPaginatedResponse } from "@src/utils/apiPaginatedResponse";
 
+@ApiTags("departments")
 @Controller("dptos")
 export class DptosController {
   constructor(private readonly dptosService: DptosService) {}
@@ -42,13 +46,9 @@ export class DptosController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
-    status: 200,
-    description: "Response of all departments",
-    type: ResponseDptosDto,
-  })
-  async findAll() {
-    return await this.dptosService.findAll();
+  @ApiPaginatedResponse(Dpto)
+  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+    return await this.dptosService.findAll(pageOptionsDto);
   }
 
   @Get(":id")

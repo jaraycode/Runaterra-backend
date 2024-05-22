@@ -31,6 +31,7 @@ async function bootstrap() {
     .setDescription("Esta es la api de HealTrack")
     .setVersion("1.0")
     .addTag("users")
+    .addTag("departments")
     .addTag("auth")
     .build();
 
