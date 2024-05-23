@@ -76,7 +76,7 @@ export class DptosController {
     try {
       const user = await this.dptosService.update(+id, updateDptoDto);
       return res.status(HttpStatus.OK).json({
-        message: "Usuario actualizado con exito",
+        message: "Departamento actualizado con exito",
         data: user,
       });
     } catch (error) {

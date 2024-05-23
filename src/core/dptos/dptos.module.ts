@@ -1,21 +1,23 @@
 import { Module } from "@nestjs/common";
 import { DptosService } from "./services/dptos.service";
 import { DptosController } from "./dptos.controller";
-import { envData } from "@src/config/typeorm";
 import { DbValidatorsModule } from "@youba/nestjs-dbvalidator";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Dpto } from "./entities/dpto.entity";
+import { ConfigService } from "nestjs-config";
+
+const configService = new ConfigService();
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Dpto]),
     DbValidatorsModule.register({
       type: "postgres",
-      host: envData.DATABASE_HOST,
-      port: parseInt(envData.DATABASE_PORT),
-      username: envData.DATABASE_USERNAME,
-      password: envData.DATABASE_PASSWORD,
-      database: envData.DATABASE_NAME,
+      host: configService.get("DATABASE_HOST"),
+      port: configService.get("DATABASE_PORT"),
+      username: configService.get("DATABASE_USERNAME"),
+      password: configService.get("DATABASE_PASSWORD"),
+      database: configService.get("DATABASE_NAME"),
     }),
   ],
   controllers: [DptosController],

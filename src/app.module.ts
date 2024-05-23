@@ -9,6 +9,7 @@ import typeorm from "./config/typeorm";
 import { UsersModule } from "./core/users/users.module";
 import { AuthModule } from "./core/auth/auth.module";
 import { DptosModule } from "./core/dptos/dptos.module";
+import { IndicatorsModule } from "./core/indicators/indicators.module";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { DptosModule } from "./core/dptos/dptos.module";
     UsersModule,
     AuthModule,
     DptosModule,
+    IndicatorsModule,
   ],
   controllers: [AppController],
   providers: [
