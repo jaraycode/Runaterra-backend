@@ -10,6 +10,7 @@ import { UsersModule } from "./core/users/users.module";
 import { AuthModule } from "./core/auth/auth.module";
 import { DptosModule } from "./core/dptos/dptos.module";
 import { IndicatorsModule } from "./core/indicators/indicators.module";
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { IndicatorsModule } from "./core/indicators/indicators.module";
     AuthModule,
     DptosModule,
     IndicatorsModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Category } from "@src/core/categories/entities/category.entity";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class Indicator {
@@ -19,6 +28,8 @@ export class Indicator {
   @Column()
   description: string;
 
+  @OneToMany(() => Category, (category) => category.indicator)
+  categories: Category[];
   @CreateDateColumn({ type: "timestamptz" })
   createAt: Date;
 
