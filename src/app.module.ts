@@ -10,7 +10,7 @@ import { UsersModule } from "./core/users/users.module";
 import { AuthModule } from "./core/auth/auth.module";
 import { DptosModule } from "./core/dptos/dptos.module";
 import { IndicatorsModule } from "./core/indicators/indicators.module";
-import { CategoriesModule } from './categories/categories.module';
+import { CategoriesModule } from "./core/categories/categories.module";
 
 @Module({
   imports: [

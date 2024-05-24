@@ -14,7 +14,8 @@ export class CategoriesService {
     private readonly categoryRepository: Repository<Category>,
     private readonly indicatorService: IndicatorsService,
   ) {}
-  async create(createCategoryDto: CreateCategoryDto) {
+
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     const indicator = await this.indicatorService.findOne(createCategoryDto.indicatorID);
 
     if (!indicator) {
@@ -27,19 +28,42 @@ export class CategoriesService {
     return newCategory;
   }
 
-  async findAll() {
-    return `This action returns all categories`;
+  // TODO: pagination
+  async findAll(): Promise<Category[]> {
+    return await this.categoryRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Category> {
     return await this.categoryRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+    const category = await this.findOne(id);
+
+    if (!category) {
+      throw new NotFoundException("Categoría no encontrado");
+    }
+
+    const result = await this.categoryRepository.update(id, updateCategoryDto);
+
+    if (result.affected === 0) {
+      throw new NotFoundException("La actualización de la categoría no se pudo realizar");
+    }
+    return await this.findOne(id); // returning the updated row
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number): Promise<void> {
+    const category = await this.findOne(id);
+
+    if (!category) {
+      throw new NotFoundException("Categoría no encontrado");
+    }
+
+    const result = await this.categoryRepository.softDelete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException("La eliminación de la categoría no se pudo realizar");
+    }
+    return;
   }
 }
