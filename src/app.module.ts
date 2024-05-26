@@ -7,6 +7,7 @@ import { ResponseInterceptor } from "@tresdoce-nestjs-toolkit/response-parser";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import typeorm from "./config/typeorm";
 import { UsersModule } from "./core/users/users.module";
+import { AuthModule } from "./core/auth/auth.module";
 import { DptosModule } from "./core/dptos/dptos.module";
 
 @Module({
@@ -20,6 +21,7 @@ import { DptosModule } from "./core/dptos/dptos.module";
       useFactory: async (configService: ConfigService) => configService.get("typeorm"),
     }),
     UsersModule,
+    AuthModule,
     DptosModule,
   ],
   controllers: [AppController],

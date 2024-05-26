@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UpdateUserDto } from "../dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -14,6 +14,12 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = await this.findByEmailWithPassword(createUserDto.email);
+
+    if (user) {
+      throw new BadRequestException("El usuario ya existe");
+    }
+
     const password = await bcryptjs.hash(createUserDto.password, 10);
     return this.userRepository.save({ ...createUserDto, password });
   }
@@ -60,5 +66,12 @@ export class UsersService {
     }
 
     return;
+  }
+
+  async findByEmailWithPassword(email: string): Promise<User> {
+    return this.userRepository.findOne({
+      where: { email },
+      select: ["id", "name", "email", "password", "role"],
+    });
   }
 }
