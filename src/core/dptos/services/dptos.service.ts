@@ -20,8 +20,6 @@ export class DptosService {
   }
 
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Dpto>> {
-    console.log(pageOptionsDto.skip);
-
     const [result, total] = await this.dptoRepository.findAndCount({
       order: {
         name: pageOptionsDto.order,
