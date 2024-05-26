@@ -7,6 +7,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { json } from "express";
 import { ExceptionsFilter } from "@tresdoce-nestjs-toolkit/filters";
 import { ConfigService } from "@nestjs/config";
+import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
   const PORT = process.env.PORT || 8000;
@@ -22,6 +23,8 @@ async function bootstrap() {
   app.enableCors(CORS);
 
   app.setGlobalPrefix("api/v1");
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.useGlobalFilters(new ExceptionsFilter(appConfig));
 

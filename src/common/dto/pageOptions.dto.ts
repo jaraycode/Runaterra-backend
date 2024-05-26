@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Order } from "@src/constants";
-import { Type } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 import { IsEnum, IsInt, IsOptional, Max, Min } from "class-validator";
 
 export class PageOptionsDto {
@@ -31,6 +31,7 @@ export class PageOptionsDto {
   @IsOptional()
   readonly take?: number = 10;
 
+  @Expose()
   get skip(): number {
     return (this.page - 1) * this.take;
   }
