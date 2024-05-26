@@ -20,16 +20,22 @@ export class DptosService {
   }
 
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Dpto>> {
-    const queryBuilder = await this.dptoRepository.createQueryBuilder("dpto");
+    console.log(pageOptionsDto.skip);
 
-    queryBuilder.orderBy("dpto.createdAt", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
+    const [result, total] = await this.dptoRepository.findAndCount({
+      order: {
+        name: pageOptionsDto.order,
+      },
+      take: pageOptionsDto.take,
+      skip: pageOptionsDto.skip,
+    });
 
-    const itemCount = await queryBuilder.getCount();
-    const { entities } = await queryBuilder.getRawAndEntities();
+    const pageMetaDto = new PageMetaDto({
+      itemCount: total,
+      pageOptionsDto,
+    });
 
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-
-    return new PageDto(entities, pageMetaDto);
+    return new PageDto(result, pageMetaDto);
   }
 
   async findOne(id: number): Promise<Dpto> {
