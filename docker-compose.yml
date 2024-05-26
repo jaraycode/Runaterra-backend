@@ -7,14 +7,14 @@ services:
     container_name: pg_runaterrans
     restart: always
     environment:
-      POSTGRES_USER: runaterrans
+      POSTGRES_USER: jonasaray
       POSTGRES_DB: runaterrans
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: jaray1234
       POSTGRES_ROOT_PASSWORD: root
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
-      - ./database/CREATE.SQL:/docker-entrypoint-initdb.d/create_data.sql
+      #- ./database/CREATE.SQL:/docker-entrypoint-initdb.d/create_data.sql
     ports:
       - "5433:5432"
 
@@ -30,9 +30,10 @@ services:
       context: .
       dockerfile: DOCKERFILE
     restart: always
-    depends_on: [pg_runaterrans]
+    depends_on: 
+      - pg_runaterrans
     ports:
-      - "8000:8000"
+      - "3000:3000"
     
 
 volumes:

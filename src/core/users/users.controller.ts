@@ -13,6 +13,7 @@ import {
   BadRequestException,
   ConflictException,
   NotFoundException,
+  Query,
 } from "@nestjs/common";
 import { UsersService } from "./service/users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -23,6 +24,8 @@ import { User } from "./entities/user.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { ResponseUpdateUser, ResponseUserDto } from "@src/core/users/response/interceptorResponse";
 import { ResponseDelete } from "@src/common/response/response";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { ApiPaginatedResponse } from "@src/utils/apiPaginatedResponse";
 
 @ApiTags("users")
 @Controller("users")
@@ -48,13 +51,9 @@ export class UsersController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
-    status: 200,
-    description: "Response of all users",
-    type: ResponseUserDto,
-  })
-  async findAll() {
-    return await this.usersService.findAll();
+  @ApiPaginatedResponse(User)
+  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+    return await this.usersService.findAll(pageOptionsDto);
   }
 
   @Get(":id")

@@ -1,26 +1,36 @@
 import { Injectable } from "@nestjs/common";
 import { CreateDptoDto } from "../dto/create-dpto.dto";
 import { UpdateDptoDto } from "../dto/update-dpto.dto";
+import { Dpto } from "../entities/dpto.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class DptosService {
-  create(createDptoDto: CreateDptoDto) {
-    return "This action adds a new dpto";
+  constructor(
+    @InjectRepository(Dpto)
+    private readonly dptoRepository: Repository<Dpto>,
+  ) {}
+
+  async create(createDptoDto: CreateDptoDto): Promise<Dpto> {
+    const newDpto = new Dpto();
+    newDpto.nombre = createDptoDto.name;
+    return await this.dptoRepository.save(newDpto);
   }
 
-  findAll() {
-    return `This action returns all dptos`;
+  async findAll(): Promise<Dpto[]> {
+    return this.dptoRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} dpto`;
+  async findOne(id: number): Promise<Dpto> {
+    return this.dptoRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateDptoDto: UpdateDptoDto) {
+  async update(id: number, updateDptoDto: UpdateDptoDto) {
     return `This action updates a #${id} dpto`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} dpto`;
   }
 }
