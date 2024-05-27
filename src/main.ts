@@ -32,6 +32,9 @@ async function bootstrap() {
     .setVersion("1.0")
     .addTag("users")
     .addTag("departments")
+    .addTag("indicators")
+    .addTag("categories")
+    .addTag("criteria")
     .addTag("auth")
     .build();
 

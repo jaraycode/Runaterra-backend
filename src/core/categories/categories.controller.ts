@@ -17,9 +17,10 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { Category } from "./entities/category.entity";
-import { ApiCreatedResponse, ApiResponse } from "@nestjs/swagger";
+import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
 
+@ApiTags("categories")
 @Controller("categories")
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
