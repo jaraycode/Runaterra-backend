@@ -17,9 +17,10 @@ import { CreateCriteriaDto } from "./dto/create-criteria.dto";
 import { UpdateCriteriaDto } from "./dto/update-criteria.dto";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { Criteria } from "./entities/criteria.entity";
-import { ApiCreatedResponse, ApiResponse } from "@nestjs/swagger";
+import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
 
+@ApiTags("criteria")
 @Controller("criteria")
 export class CriteriaController {
   constructor(private readonly criteriaService: CriteriaService) {}
