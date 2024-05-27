@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Category } from "@src/core/categories/entities/category.entity";
+import { Criteria } from "@src/core/criteria/entities/criteria.entity";
 import {
   Column,
   CreateDateColumn,
@@ -30,6 +31,10 @@ export class Indicator {
 
   @OneToMany(() => Category, (category) => category.indicator)
   categories: Category[];
+
+  @OneToMany(() => Criteria, (criteria) => criteria.indicator)
+  criteria: Criteria[];
+
   @CreateDateColumn({ type: "timestamptz" })
   createAt: Date;
 
