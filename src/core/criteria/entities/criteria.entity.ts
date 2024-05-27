@@ -28,9 +28,6 @@ export class Criteria {
   @Column({ nullable: true })
   description: string;
 
-  @ApiProperty({
-    type: Indicator,
-  })
   @ManyToOne(() => Indicator, (indicator) => indicator.criteria)
   indicator: Indicator;
 
