@@ -24,9 +24,6 @@ export class Category {
   @Column({ nullable: true })
   description: string;
 
-  @ApiProperty({
-    type: Indicator,
-  })
   @ManyToOne(() => Indicator, (indicator) => indicator.categories)
   indicator: Indicator;
 

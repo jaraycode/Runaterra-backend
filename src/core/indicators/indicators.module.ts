@@ -12,5 +12,6 @@ const configService = new ConfigService();
   imports: [TypeOrmModule.forFeature([Indicator])],
   controllers: [IndicatorsController],
   providers: [IndicatorsService],
+  exports: [IndicatorsService],
 })
 export class IndicatorsModule {}
