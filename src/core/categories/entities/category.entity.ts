@@ -1,17 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Category } from "@src/core/categories/entities/category.entity";
+import { Indicator } from "@src/core/indicators/entities/indicator.entity";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 
 @Entity()
-export class Indicator {
+export class Category {
   @ApiProperty()
   @PrimaryGeneratedColumn("increment")
   id: number;
@@ -21,15 +21,15 @@ export class Indicator {
   name: string;
 
   @ApiProperty()
-  @Column({ nullable: false })
-  index: number;
-
-  @ApiProperty()
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
-  @OneToMany(() => Category, (category) => category.indicator)
-  categories: Category[];
+  @ApiProperty({
+    type: Indicator,
+  })
+  @ManyToOne(() => Indicator, (indicator) => indicator.categories)
+  indicator: Indicator;
+
   @CreateDateColumn({ type: "timestamptz" })
   createAt: Date;
 
