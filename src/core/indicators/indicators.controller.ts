@@ -10,6 +10,7 @@ import {
   HttpStatus,
   NotFoundException,
   Res,
+  Query,
 } from "@nestjs/common";
 import { IndicatorsService } from "./services/indicators.service";
 import { CreateIndicatorDto } from "./dto/create-indicator.dto";
@@ -23,6 +24,8 @@ import {
   ResponseIndicatorDto,
   ResponseUpdateIndicators,
 } from "./response/interceptorResponse";
+import { ApiPaginatedResponse } from "@src/utils/apiPaginatedResponse";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 
 @ApiTags("indicators")
 @Controller("indicators")
@@ -47,8 +50,9 @@ export class IndicatorsController {
     description: "Response of all indicators",
     type: ResponseIndicatorDto,
   })
-  async findAll() {
-    return this.indicatorsService.findAll();
+  @ApiPaginatedResponse(Indicator)
+  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+    return this.indicatorsService.findAll(pageOptionsDto);
   }
 
   @Get(":id")
