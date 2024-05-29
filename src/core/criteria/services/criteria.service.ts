@@ -6,6 +6,9 @@ import { Criteria } from "../entities/criteria.entity";
 import { Repository } from "typeorm";
 import { IndicatorsService } from "@src/core/indicators/services/indicators.service";
 import { Indicator } from "@src/core/indicators/entities/indicator.entity";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { PageMetaDto } from "@src/common/dto/page.meta.dto";
+import { PageDto } from "@src/common/dto/page.dto";
 
 @Injectable()
 export class CriteriaService {
@@ -28,9 +31,19 @@ export class CriteriaService {
     return newCriteria;
   }
 
-  // TODO: pagination
-  async findAll(): Promise<Criteria[]> {
-    return await this.criteriaRepository.find();
+  // ? pagination. Looking if it works
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Criteria>> {
+    const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
+
+    queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
+    queryBuilder.orderBy("criteria.index", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   async findOne(id: number): Promise<Criteria> {
