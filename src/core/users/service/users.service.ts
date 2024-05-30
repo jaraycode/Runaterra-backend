@@ -21,7 +21,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.findByEmailWithPassword(createUserDto.email);
 
-    const dpto = await this.dptoService.findOne(createUserDto.departamentId);
+    const dpto = await this.dptoService.findOne(createUserDto.departmentId);
 
     const userDpto = await this.userRepository.find({
       relations: ["department"],
