@@ -58,5 +58,5 @@ export class CreateUserDto {
   birthdate: string;
 
   @ApiProperty()
-  departamentId: number;
+  departmentId: number;
 }
