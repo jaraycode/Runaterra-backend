@@ -12,6 +12,7 @@ import { DptosModule } from "./core/dptos/dptos.module";
 import { IndicatorsModule } from "./core/indicators/indicators.module";
 import { CategoriesModule } from "./core/categories/categories.module";
 import { CriteriaModule } from "./core/criteria/criteria.module";
+import { ContributionsModule } from "./core/contributions/contributions.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CriteriaModule } from "./core/criteria/criteria.module";
     IndicatorsModule,
     CategoriesModule,
     CriteriaModule,
+    ContributionsModule,
   ],
   controllers: [AppController],
   providers: [
