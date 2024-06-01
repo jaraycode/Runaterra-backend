@@ -10,7 +10,7 @@ export class CreateContributionDto {
   @IsString()
   description: string;
 
-  @ApiProperty({ type: CreateLinkDto, required: true })
+  @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
   @IsOptional()
   @Type(() => Link)
   @ValidateNested()

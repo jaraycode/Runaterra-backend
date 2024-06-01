@@ -9,14 +9,18 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  NotFoundException,
+  Res,
 } from "@nestjs/common";
 import { ContributionsService } from "./services/contributions.service";
 import { CreateContributionDto } from "./dto/create-contribution.dto";
 import { UpdateContributionDto } from "./dto/update-contribution.dto";
-import { ApiCreatedResponse } from "@nestjs/swagger";
+import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Contribution } from "./entities/contribution.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
-
+import { ResponseUpdateContribution } from "./response/interceptorResponse";
+import * as express from "express";
+@ApiTags("contributions")
 @Controller("contributions")
 export class ContributionsController {
   constructor(private readonly contributionsService: ContributionsService) {}
@@ -31,27 +35,66 @@ export class ContributionsController {
   @ApiException(() => BadRequestException, {
     description: "Required atributes were missing",
   })
-  create(@Body() createContributionDto: CreateContributionDto) {
-    return this.contributionsService.create(createContributionDto);
+  async create(@Body() createContributionDto: CreateContributionDto) {
+    return await this.contributionsService.create(createContributionDto);
   }
 
   @Get()
-  findAll() {
-    return this.contributionsService.findAll();
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
+    return await this.contributionsService.findAll();
   }
 
   @Get(":id")
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: 200,
+    description: "Response of criteria by id",
+    type: Contribution,
+  })
   findOne(@Param("id") id: string) {
     return this.contributionsService.findOne(+id);
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateContributionDto: UpdateContributionDto) {
-    return this.contributionsService.update(+id, updateContributionDto);
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({
+    status: 200,
+    description: "Response of user update",
+    type: ResponseUpdateContribution,
+  })
+  @ApiException(() => NotFoundException, {
+    description: "Contribution not found",
+  })
+  async update(
+    @Param("id") id: string,
+    @Body() updateContributionDto: UpdateContributionDto,
+    @Res() res: express.Response,
+  ) {
+    try {
+      const contribution = await this.contributionsService.update(+id, updateContributionDto);
+      return res.status(HttpStatus.OK).json({
+        message: "Contribución actualizado con exito",
+        data: contribution,
+      });
+    } catch (error) {
+      return res.status(error.status).json({
+        message: error.message,
+      });
+    }
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.contributionsService.remove(+id);
+  async remove(@Param("id") id: string, @Res() res: express.Response) {
+    try {
+      await this.contributionsService.remove(+id);
+      return res.status(HttpStatus.OK).json({
+        message: "Contribución eliminado con exito",
+      });
+    } catch (error) {
+      return res.status(error.status).json({
+        message: error.message,
+      });
+    }
   }
 }

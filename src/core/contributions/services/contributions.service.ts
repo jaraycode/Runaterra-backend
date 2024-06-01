@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateContributionDto } from "../dto/create-contribution.dto";
 import { UpdateContributionDto } from "../dto/update-contribution.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -11,23 +11,41 @@ export class ContributionsService {
     @InjectRepository(Contribution)
     private readonly contributionReposiroty: Repository<Contribution>,
   ) {}
-  create(createContributionDto: CreateContributionDto): Promise<Contribution> {
-    return this.contributionReposiroty.save(createContributionDto);
+  async create(createContributionDto: CreateContributionDto): Promise<Contribution> {
+    return await this.contributionReposiroty.save(createContributionDto);
   }
 
-  findAll() {
-    return `This action returns all contributions`;
+  async findAll(): Promise<Contribution[]> {
+    return await this.contributionReposiroty.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} contribution`;
+  async findOne(id: number): Promise<Contribution> {
+    return await this.contributionReposiroty.findOne({ where: { id } });
   }
 
-  update(id: number, updateContributionDto: UpdateContributionDto) {
-    return `This action updates a #${id} contribution`;
+  async update(id: number, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
+    const result = await this.contributionReposiroty.update(id, updateContributionDto);
+
+    if (result.affected === 0) {
+      throw new NotFoundException("La actualización de la contribución no se pudo realizar");
+    }
+
+    return await this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} contribution`;
+  async remove(id: number): Promise<void> {
+    const contribution = await this.findOne(id);
+
+    if (!contribution) {
+      throw new NotFoundException("No se encontró la contribución");
+    }
+
+    const result = await this.contributionReposiroty.softDelete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException("La actualización de la contribución no se pudo realizar");
+    }
+
+    return;
   }
 }
