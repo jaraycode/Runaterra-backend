@@ -20,7 +20,7 @@ export class Dpto {
   @Column({ nullable: false })
   name: string;
 
-  @OneToMany(() => User, (user) => user.department)
+  @OneToMany(() => User, (user) => user.contributions)
   user: User[];
 
   @CreateDateColumn({ type: "timestamptz" })

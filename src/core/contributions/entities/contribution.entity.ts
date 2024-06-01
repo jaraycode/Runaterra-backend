@@ -1,6 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  UpdateDateColumn,
+} from "typeorm";
 import { Link } from "./link.entity";
+import { User } from "@src/core/users/entities/user.entity";
 
 @Entity()
 export class Contribution {
@@ -17,6 +26,9 @@ export class Contribution {
   description: string;
 
   // TODO: relation with user
+  @ManyToOne(() => User, (user) => user.contributions)
+  user: User;
+
   // TODO: relation with categories
 
   @ApiProperty()
