@@ -36,8 +36,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle("HealTrack API")
-    .setDescription("Esta es la api de HealTrack")
+    .setTitle("Green Metrics API")
+    .setDescription("Esta es la api de Green Metrics")
     .setVersion("1.0")
     .addTag("users")
     .addTag("departments")
