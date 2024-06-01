@@ -46,11 +46,9 @@ export class User {
     type: Dpto,
   })
 
-  //relation with user
+  //relation with contribution
   @OneToMany(() => Contribution, (contribution) => contribution.user)
   contributions: Contribution[];
-
-  //relation with contribution
 
   @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date;
