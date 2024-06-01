@@ -9,8 +9,8 @@ export class Contribution {
   id: number;
 
   @ApiProperty()
-  @Column("jsonb", { nullable: true, default: {} })
-  link: Link[];
+  @Column("jsonb", { nullable: true })
+  link?: Link[];
 
   @ApiProperty()
   @Column({ nullable: true })
