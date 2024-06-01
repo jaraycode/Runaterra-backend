@@ -47,7 +47,10 @@ export class CriteriaService {
   }
 
   async findOne(id: number): Promise<Criteria> {
-    return await this.criteriaRepository.findOne({ where: { id } });
+    const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
+    queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
+    queryBuilder.where("criteria.id = :id", { id: id });
+    return queryBuilder.getOne();
   }
 
   async update(id: number, updateCriteriaDto: UpdateCriteriaDto): Promise<Criteria> {
