@@ -1,5 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { User } from "@src/core/users/entities/user.entity";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 
 @Entity()
 export class Dpto {
@@ -9,13 +18,16 @@ export class Dpto {
 
   @ApiProperty()
   @Column({ nullable: false })
-  nombre: string;
+  name: string;
+
+  @OneToMany(() => User, (user) => user.department)
+  user: User[];
 
   @CreateDateColumn({ type: "timestamptz" })
-  createDate: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: "timestamptz" })
-  updateDate: Date;
+  updatedAt: Date;
 
   @DeleteDateColumn({ type: "timestamptz" })
   deleteAt: Date;

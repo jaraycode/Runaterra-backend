@@ -45,7 +45,7 @@ export class UsersController {
   @ApiException(() => ConflictException, {
     description: "Email already exists",
   })
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.usersService.create(createUserDto);
   }
 
