@@ -36,6 +36,7 @@ export class CategoriesController {
     description: "Required atributes were missing",
   })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
+    console.log(createCategoryDto);
     return await this.categoriesService.create(createCategoryDto);
   }
 

@@ -3,9 +3,10 @@ import { CreateCategoryDto } from "../dto/create-category.dto";
 import { UpdateCategoryDto } from "../dto/update-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Category } from "../entities/category.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { IndicatorsService } from "@src/core/indicators/services/indicators.service";
 import { Indicator } from "@src/core/indicators/entities/indicator.entity";
+import { Criteria } from "@src/core/criteria/entities/criteria.entity";
 
 @Injectable()
 export class CategoriesService {
@@ -13,19 +14,40 @@ export class CategoriesService {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly indicatorService: IndicatorsService,
+    @InjectRepository(Criteria)
+    private readonly criteriaRepository: Repository<Criteria>,
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const indicator = await this.indicatorService.findOne(createCategoryDto.indicatorID);
+    try {
+      console.log(createCategoryDto);
+      const indicator = await this.indicatorService.findOne(createCategoryDto.indicatorID);
 
-    if (!indicator) {
-      throw new BadRequestException("El indicador no existe");
+      if (!indicator) {
+        throw new BadRequestException("El indicador no existe");
+      }
+
+      const criteria = await this.criteriaRepository.find({
+        where: {
+          id: In(createCategoryDto.criteriaID),
+        },
+      });
+
+      if (criteria.length !== createCategoryDto.criteriaID.length) {
+        throw new BadRequestException("Alguno de los criterios ingresados no existe");
+      }
+
+      const newCategory = await this.categoryRepository.create({
+        ...createCategoryDto,
+        indicator: indicator,
+        criteria: criteria,
+      });
+
+      await this.categoryRepository.save(newCategory);
+      return newCategory;
+    } catch (error) {
+      console.log(error);
     }
-
-    const newCategory = await this.categoryRepository.create({ ...createCategoryDto, indicator: indicator });
-
-    await this.categoryRepository.save(newCategory);
-    return newCategory;
   }
 
   // TODO: pagination
