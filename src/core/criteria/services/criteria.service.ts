@@ -59,7 +59,15 @@ export class CriteriaService {
       throw new NotFoundException("Criterio no encontrado");
     }
 
-    const result = await this.criteriaRepository.update(id, updateCriteriaDto);
+    const indicador = await this.indicatorService.findOne(updateCriteriaDto.indicatorID);
+
+    if (!indicador) {
+      throw new BadRequestException("El indicador no existe");
+    }
+
+    const { indicatorID, ...data } = updateCriteriaDto;
+
+    const result = await this.criteriaRepository.update(id, { ...data, indicator: indicador });
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización del criterio no se pudo realizar");
