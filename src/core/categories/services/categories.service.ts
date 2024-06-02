@@ -52,7 +52,9 @@ export class CategoriesService {
 
   // TODO: pagination
   async findAll(): Promise<Category[]> {
-    return await this.categoryRepository.find();
+    return await this.categoryRepository.find({
+      relations: ["indicator", "criteria"],
+    });
   }
 
   async findOne(id: number): Promise<Category> {

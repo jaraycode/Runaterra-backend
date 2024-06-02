@@ -21,7 +21,4 @@ export class CreateCriteriaDto {
 
   @ApiProperty()
   indicatorID: number;
-
-  @ApiProperty()
-  categoryID: number;
 }
