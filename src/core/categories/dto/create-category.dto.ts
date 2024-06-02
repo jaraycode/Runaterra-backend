@@ -15,4 +15,7 @@ export class CreateCategoryDto {
 
   @ApiProperty()
   indicatorID: number;
+
+  @ApiProperty()
+  criteriaID: number[];
 }
