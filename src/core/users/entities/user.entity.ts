@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -45,6 +46,8 @@ export class User {
   @ApiProperty({
     type: Dpto,
   })
+  @ManyToOne(() => Dpto, (dpto) => dpto.user)
+  department: Dpto;
 
   //relation with contribution
   @OneToMany(() => Contribution, (contribution) => contribution.user)
