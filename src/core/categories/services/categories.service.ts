@@ -58,7 +58,7 @@ export class CategoriesService {
   }
 
   async findOne(id: number): Promise<Category> {
-    return await this.categoryRepository.findOne({ where: { id } });
+    return await this.categoryRepository.findOne({ where: { id }, relations: ["indicator", "criteria"] });
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
@@ -68,7 +68,21 @@ export class CategoriesService {
       throw new NotFoundException("Categoría no encontrado");
     }
 
-    const result = await this.categoryRepository.update(id, updateCategoryDto);
+    const criteria = await this.criteriaRepository.find({
+      where: {
+        id: In(updateCategoryDto.criteriaID),
+      },
+    });
+
+    if (criteria.length !== updateCategoryDto.criteriaID.length) {
+      throw new BadRequestException("Alguno de los criterios ingresados no existe");
+    }
+
+    await this.updateCriteriaInCategory(id, updateCategoryDto.criteriaID);
+
+    const { criteriaID, ...data } = updateCategoryDto;
+
+    const result = await this.categoryRepository.update(id, data);
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización de la categoría no se pudo realizar");
@@ -89,5 +103,18 @@ export class CategoriesService {
       throw new NotFoundException("La eliminación de la categoría no se pudo realizar");
     }
     return;
+  }
+
+  async updateCriteriaInCategory(categoryId: number, newCriteriaIds: number[]) {
+    const category = await this.categoryRepository.findOne({
+      where: { id: categoryId },
+      relations: ["criteria"],
+    });
+
+    // Filtra los criterios que ya no están presentes
+    category.criteria = category.criteria.filter((c) => newCriteriaIds.includes(c.id));
+
+    // Guarda la categoría
+    await this.categoryRepository.save(category);
   }
 }

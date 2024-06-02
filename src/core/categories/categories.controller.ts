@@ -75,6 +75,7 @@ export class CategoriesController {
         data: category,
       });
     } catch (error) {
+      console.log(error);
       return res.status(error.status).json({
         message: error.message,
       });
