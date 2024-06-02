@@ -11,7 +11,6 @@ import {
   HttpStatus,
   NotFoundException,
   Res,
-  Query,
 } from "@nestjs/common";
 import { CriteriaService } from "./services/criteria.service";
 import { CreateCriteriaDto } from "./dto/create-criteria.dto";
@@ -20,8 +19,6 @@ import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator
 import { Criteria } from "./entities/criteria.entity";
 import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
-import { ResponseUpdateCriteria } from "./response/interceptorResponse";
-import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 
 @ApiTags("criteria")
 @Controller("criteria")
@@ -44,8 +41,8 @@ export class CriteriaController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
-    return await this.criteriaService.findAll(pageOptionsDto);
+  async findAll() {
+    return await this.criteriaService.findAll();
   }
 
   @Get(":id")
@@ -64,7 +61,7 @@ export class CriteriaController {
   @ApiResponse({
     status: 200,
     description: "Response of user update",
-    type: ResponseUpdateCriteria, // ResponseUpdateCriteria
+    type: Criteria, // ResponseUpdateCriteria
   })
   @ApiException(() => NotFoundException, {
     description: "Criteria not found",

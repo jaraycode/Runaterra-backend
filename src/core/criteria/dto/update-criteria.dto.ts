@@ -17,5 +17,8 @@ export class UpdateCriteriaDto {
   @ApiProperty({ required: false, example: "Metrics used to know about the setting of the campus" })
   @IsOptional()
   @IsString()
-  description: string;
+  descripction: string;
+
+  @ApiProperty()
+  indicatorID: number;
 }
