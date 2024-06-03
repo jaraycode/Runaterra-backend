@@ -4,6 +4,9 @@ import { UpdateIndicatorDto } from "../dto/update-indicator.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Indicator } from "../entities/indicator.entity";
 import { Repository } from "typeorm";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { PageMetaDto } from "@src/common/dto/page.meta.dto";
+import { PageDto } from "@src/common/dto/page.dto";
 
 @Injectable()
 export class IndicatorsService {
@@ -12,9 +15,18 @@ export class IndicatorsService {
   async create(createIndicatorDto: CreateIndicatorDto): Promise<Indicator> {
     return await this.indicatorRepository.save(createIndicatorDto);
   }
-  // TODO: Pendiente por realizar paginación
-  async findAll(): Promise<Indicator[]> {
-    return await this.indicatorRepository.find();
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Indicator>> {
+    const queryBuilder = await this.indicatorRepository.createQueryBuilder("indicator");
+
+    queryBuilder.leftJoinAndSelect("indicator.criteria", "criteria");
+    queryBuilder.orderBy("indicator.index", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   async findOne(id: number): Promise<Indicator> {

@@ -11,8 +11,11 @@ export class CreateCategoryDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  descripction: string;
+  description: string;
 
   @ApiProperty()
   indicatorID: number;
+
+  @ApiProperty()
+  criteriaID: number[];
 }

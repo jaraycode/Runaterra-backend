@@ -7,6 +7,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { json } from "express";
 import { ExceptionsFilter } from "@tresdoce-nestjs-toolkit/filters";
 import { ConfigService } from "@nestjs/config";
+import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
   const PORT = process.env.PORT || 8000;
@@ -23,15 +24,24 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api/v1");
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
+
   app.useGlobalFilters(new ExceptionsFilter(appConfig));
 
   const config = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle("HealTrack API")
-    .setDescription("Esta es la api de HealTrack")
+    .setTitle("Green Metrics API")
+    .setDescription("Esta es la api de Green Metrics")
     .setVersion("1.0")
     .addTag("users")
     .addTag("departments")
+    .addTag("indicators")
+    .addTag("categories")
+    .addTag("criteria")
     .addTag("auth")
     .build();
 

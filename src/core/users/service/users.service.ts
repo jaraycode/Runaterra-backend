@@ -21,7 +21,16 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.findByEmailWithPassword(createUserDto.email);
 
-    const dpto = await this.dptoService.findOne(createUserDto.departamentId);
+    const dpto = await this.dptoService.findOne(createUserDto.departmentId);
+
+    const userDpto = await this.userRepository.find({
+      relations: ["department"],
+      where: {
+        department: {
+          id: dpto.id,
+        },
+      },
+    });
 
     if (user) {
       throw new BadRequestException("El usuario ya existe");
@@ -29,6 +38,10 @@ export class UsersService {
 
     if (!dpto) {
       throw new BadRequestException("El departamento no existe");
+    }
+
+    if (userDpto && userDpto.some((user) => user.role === "dpto")) {
+      throw new BadRequestException("El departamento ya tiene un usuario con el rol dpto");
     }
 
     const password = await bcryptjs.hash(createUserDto.password, 10);
