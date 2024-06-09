@@ -1,33 +1,24 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Link } from "../entities/link.entity";
-import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
-import { CreateLinkDto } from "./link.dto";
-import { CreateFileDto } from "@src/core/files/dto/create-file.dto";
 import { ApiFile } from "@src/common/decorator/fileDecorator";
+import { CreateContributionDto } from "@src/core/contributions/dto/create-contribution.dto";
+import { Contribution } from "@src/core/contributions/entities/contribution.entity";
+import { IsArray, IsNotEmpty } from "class-validator";
 import { FileData, HasMimeType, IsFileData, MaxFileSize, MimeType } from "nestjs-formdata-interceptor";
 
-export class CreateContributionDto {
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  description: string;
-
-  @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
-  @IsOptional()
-  @Type(() => Link)
-  @ValidateNested()
-  link: Link[];
+export class CreateFileDto {
+  @ApiProperty({
+    example: "Documento importante",
+  })
+  name: string;
 
   @ApiProperty({
-    type: CreateFileDto,
+    example: "evidencia de los JUDEIN",
+    required: false,
   })
-  @IsOptional()
-  file: CreateFileDto[];
+  description: string;
 
-  @ApiFile({ isArray: true })
-  @IsArray()
-  @IsFileData({ each: true })
+  @ApiFile()
+  @IsFileData()
   @HasMimeType([
     MimeType["video/mp4"],
     "image/png",
@@ -43,5 +34,7 @@ export class CreateContributionDto {
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ])
   @MaxFileSize(419430400) // 400 MB
-  files: FileData[];
+  file: FileData;
+
+  contribution: Contribution;
 }

@@ -4,15 +4,28 @@ import { UpdateContributionDto } from "../dto/update-contribution.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Contribution } from "../entities/contribution.entity";
 import { Repository } from "typeorm";
+import { FilesService } from "@src/core/files/service/files.service";
+import { CreateFileDto } from "@src/core/files/dto/create-file.dto";
 
 @Injectable()
 export class ContributionsService {
   constructor(
     @InjectRepository(Contribution)
     private readonly contributionReposiroty: Repository<Contribution>,
+    private readonly filesService: FilesService,
   ) {}
   async create(createContributionDto: CreateContributionDto): Promise<Contribution> {
-    return await this.contributionReposiroty.save(createContributionDto);
+    const { files, ...rest } = createContributionDto;
+
+    const { file: dataFile, ...data } = rest;
+    const newcontribution = await this.contributionReposiroty.create(data);
+    await this.contributionReposiroty.save(newcontribution);
+
+    const contribution = await this.contributionReposiroty.findOne({ where: { id: newcontribution.id } });
+
+    const dataFileString = JSON.stringify(dataFile, null, 2);
+
+    return contribution;
   }
 
   async findAll(): Promise<Contribution[]> {
@@ -24,7 +37,8 @@ export class ContributionsService {
   }
 
   async update(id: number, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
-    const result = await this.contributionReposiroty.update(id, updateContributionDto);
+    const { files, ...data } = updateContributionDto;
+    const result = await this.contributionReposiroty.update(id, data);
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");

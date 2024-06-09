@@ -15,7 +15,7 @@ import {
 import { ContributionsService } from "./services/contributions.service";
 import { CreateContributionDto } from "./dto/create-contribution.dto";
 import { UpdateContributionDto } from "./dto/update-contribution.dto";
-import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Contribution } from "./entities/contribution.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { ResponseUpdateContribution } from "./response/interceptorResponse";
@@ -25,6 +25,7 @@ import * as express from "express";
 export class ContributionsController {
   constructor(private readonly contributionsService: ContributionsService) {}
 
+  @ApiConsumes("multipart/form-data")
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiCreatedResponse({

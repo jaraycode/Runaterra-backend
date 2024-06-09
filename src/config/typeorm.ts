@@ -25,6 +25,7 @@ export const envData = {
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
   DATABASE_NAME: process.env.DATABASE_NAME,
   SECRET: process.env.SECRET,
+  BACKEND_URL: process.env.BACKEND_URL,
 };
 
 export default registerAs("typeorm", () => config);

@@ -7,9 +7,11 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import { Link } from "./link.entity";
 import { User } from "@src/core/users/entities/user.entity";
+import { Files } from "@src/core/files/entities/file.entity";
 
 @Entity()
 export class Contribution {
@@ -29,7 +31,8 @@ export class Contribution {
   @ManyToOne(() => User, (user) => user.contributions)
   user: User;
 
-  // TODO: relation with categories
+  @OneToMany(() => Files, (file) => file.contribution)
+  files?: Files[];
 
   @ApiProperty()
   @CreateDateColumn({ type: "timestamptz" })
