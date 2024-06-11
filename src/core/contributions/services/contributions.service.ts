@@ -5,7 +5,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Contribution } from "../entities/contribution.entity";
 import { Repository } from "typeorm";
 import { FilesService } from "@src/core/files/service/files.service";
-import { CreateFileDto } from "@src/core/files/dto/create-file.dto";
 
 @Injectable()
 export class ContributionsService {
@@ -15,15 +14,36 @@ export class ContributionsService {
     private readonly filesService: FilesService,
   ) {}
   async create(createContributionDto: CreateContributionDto): Promise<Contribution> {
-    const { files, ...rest } = createContributionDto;
+    let { files, file, ...data } = createContributionDto;
 
-    const { file: dataFile, ...data } = rest;
+    if (files && !Array.isArray(files)) {
+      files = [files];
+    }
+    if (file && !Array.isArray(file)) {
+      file = [file];
+    }
+
+    if (files && file) {
+      if (files.length !== file.length) {
+        throw new Error("Los arreglos 'files' y 'file' deben tener la misma longitud");
+      }
+    }
+
     const newcontribution = await this.contributionReposiroty.create(data);
     await this.contributionReposiroty.save(newcontribution);
 
     const contribution = await this.contributionReposiroty.findOne({ where: { id: newcontribution.id } });
 
-    const dataFileString = JSON.stringify(dataFile, null, 2);
+    const unifiedFiles = files.map((fileItem, index) => {
+      return {
+        name: file[index].name,
+        description: file[index].description,
+        file: fileItem,
+        contribution: contribution,
+      };
+    });
+
+    await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
 
     return contribution;
   }
@@ -37,8 +57,9 @@ export class ContributionsService {
   }
 
   async update(id: number, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
-    const { files, ...data } = updateContributionDto;
-    const result = await this.contributionReposiroty.update(id, data);
+    const { file, ...data } = updateContributionDto;
+    const { files, ...rest } = data;
+    const result = await this.contributionReposiroty.update(id, rest);
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");

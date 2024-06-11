@@ -16,7 +16,6 @@ export class FilesService {
 
   async create(createFileDto: CreateFileDto) {
     const { name, description, file, contribution } = createFileDto;
-    console.log(contribution);
 
     const newFile = new Files();
     newFile.name = name;

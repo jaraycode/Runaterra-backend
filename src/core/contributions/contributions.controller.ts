@@ -11,6 +11,7 @@ import {
   BadRequestException,
   NotFoundException,
   Res,
+  Req,
 } from "@nestjs/common";
 import { ContributionsService } from "./services/contributions.service";
 import { CreateContributionDto } from "./dto/create-contribution.dto";
@@ -37,6 +38,28 @@ export class ContributionsController {
     description: "Required atributes were missing",
   })
   async create(@Body() createContributionDto: CreateContributionDto) {
+    if (typeof createContributionDto.link === "string") {
+      const links = (createContributionDto.link as string).split("},{").map((item) => {
+        if (!item.startsWith("{")) item = "{" + item;
+        if (!item.endsWith("}")) item = item + "}";
+        return JSON.parse(item);
+      });
+      createContributionDto.link = links;
+    }
+
+    if (typeof createContributionDto.file === "string") {
+      const files = (createContributionDto.file as string).split("},{").map((item) => {
+        if (!item.startsWith("{")) item = "{" + item;
+        if (!item.endsWith("}")) item = item + "}";
+        return JSON.parse(item);
+      });
+      createContributionDto.file = files;
+    } else if (Array.isArray(createContributionDto.file)) {
+      createContributionDto.file = createContributionDto.file.map((item) =>
+        typeof item === "string" ? JSON.parse(item) : item,
+      );
+    }
+
     return await this.contributionsService.create(createContributionDto);
   }
 

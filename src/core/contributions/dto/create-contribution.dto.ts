@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Link } from "../entities/link.entity";
 import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { CreateLinkDto } from "./link.dto";
 import { CreateFileDto } from "@src/core/files/dto/create-file.dto";
 import { ApiFile } from "@src/common/decorator/fileDecorator";
@@ -15,14 +15,14 @@ export class CreateContributionDto {
 
   @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
   @IsOptional()
-  @Type(() => Link)
+  @Type(() => CreateLinkDto)
+  @Transform(({ value }) => (typeof value === "string" ? JSON.parse(value) : value))
   @ValidateNested()
   link: Link[];
 
-  @ApiProperty({
-    type: CreateFileDto,
-  })
-  @IsOptional()
+  @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
+  @Type(() => CreateFileDto)
+  @ValidateNested({ each: true })
   file: CreateFileDto[];
 
   @ApiFile({ isArray: true })
