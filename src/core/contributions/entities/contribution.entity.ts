@@ -12,12 +12,15 @@ import {
 import { Link } from "./link.entity";
 import { User } from "@src/core/users/entities/user.entity";
 import { Files } from "@src/core/files/entities/file.entity";
-
 @Entity()
 export class Contribution {
   @ApiProperty()
   @PrimaryGeneratedColumn("increment")
   id: number;
+
+  @ApiProperty()
+  @Column({ nullable: false, unique: true })
+  uuid: string;
 
   @ApiProperty()
   @Column("jsonb", { nullable: true })
@@ -27,7 +30,6 @@ export class Contribution {
   @Column({ nullable: true })
   description: string;
 
-  // TODO: relation with user
   @ManyToOne(() => User, (user) => user.contributions)
   user: User;
 

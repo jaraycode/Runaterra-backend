@@ -56,16 +56,31 @@ export class ContributionsService {
     return await this.contributionReposiroty.findOne({ where: { id } });
   }
 
-  async update(id: number, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
+  async findOneByUUID(uuid: string) {
+    return await this.contributionReposiroty.findOne({ where: { uuid } });
+  }
+
+  async update(uuid: string, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
+    const contributionByUUID = this.findOneByUUID(uuid);
+
+    if (!contributionByUUID) {
+      throw new NotFoundException("No existe esa contribución");
+    }
+
     const { file, ...data } = updateContributionDto;
     const { files, ...rest } = data;
-    const result = await this.contributionReposiroty.update(id, rest);
+    const result = await this.contributionReposiroty
+      .createQueryBuilder()
+      .update(rest)
+      .where("uuid = :uuid", { uuid })
+      .execute();
+    //const result = await this.contributionReposiroty.update(uuid, rest);
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");
     }
 
-    return await this.findOne(id);
+    return await this.findOneByUUID(uuid);
   }
 
   async remove(id: number): Promise<void> {

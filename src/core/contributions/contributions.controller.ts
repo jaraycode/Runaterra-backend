@@ -38,29 +38,35 @@ export class ContributionsController {
     description: "Required atributes were missing",
   })
   async create(@Body() createContributionDto: CreateContributionDto) {
-    if (typeof createContributionDto.link === "string") {
-      const links = (createContributionDto.link as string).split("},{").map((item) => {
-        if (!item.startsWith("{")) item = "{" + item;
-        if (!item.endsWith("}")) item = item + "}";
-        return JSON.parse(item);
-      });
-      createContributionDto.link = links;
-    }
+    const { uuid, ...rest } = createContributionDto;
+    const idempotency = await this.contributionsService.findOneByUUID(uuid);
+    if (!idempotency) {
+      if (typeof createContributionDto.link === "string") {
+        const links = (createContributionDto.link as string).split("},{").map((item) => {
+          if (!item.startsWith("{")) item = "{" + item;
+          if (!item.endsWith("}")) item = item + "}";
+          return JSON.parse(item);
+        });
+        createContributionDto.link = links;
+      }
 
-    if (typeof createContributionDto.file === "string") {
-      const files = (createContributionDto.file as string).split("},{").map((item) => {
-        if (!item.startsWith("{")) item = "{" + item;
-        if (!item.endsWith("}")) item = item + "}";
-        return JSON.parse(item);
-      });
-      createContributionDto.file = files;
-    } else if (Array.isArray(createContributionDto.file)) {
-      createContributionDto.file = createContributionDto.file.map((item) =>
-        typeof item === "string" ? JSON.parse(item) : item,
-      );
-    }
+      if (typeof createContributionDto.file === "string") {
+        const files = (createContributionDto.file as string).split("},{").map((item) => {
+          if (!item.startsWith("{")) item = "{" + item;
+          if (!item.endsWith("}")) item = item + "}";
+          return JSON.parse(item);
+        });
+        createContributionDto.file = files;
+      } else if (Array.isArray(createContributionDto.file)) {
+        createContributionDto.file = createContributionDto.file.map((item) =>
+          typeof item === "string" ? JSON.parse(item) : item,
+        );
+      }
 
-    return await this.contributionsService.create(createContributionDto);
+      return await this.contributionsService.create(createContributionDto);
+    }
+    const updateContributionDto: UpdateContributionDto = rest;
+    return await this.contributionsService.update(uuid, updateContributionDto);
   }
 
   @Get()
@@ -91,12 +97,12 @@ export class ContributionsController {
     description: "Contribution not found",
   })
   async update(
-    @Param("id") id: string,
+    @Param("uuid") uuid: string,
     @Body() updateContributionDto: UpdateContributionDto,
     @Res() res: express.Response,
   ) {
     try {
-      const contribution = await this.contributionsService.update(+id, updateContributionDto);
+      const contribution = await this.contributionsService.update(uuid, updateContributionDto);
       return res.status(HttpStatus.OK).json({
         message: "Contribución actualizado con exito",
         data: contribution,

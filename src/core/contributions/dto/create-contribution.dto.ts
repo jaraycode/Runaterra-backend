@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Link } from "../entities/link.entity";
-import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { Transform, Type } from "class-transformer";
 import { CreateLinkDto } from "./link.dto";
 import { CreateFileDto } from "@src/core/files/dto/create-file.dto";
@@ -8,6 +8,11 @@ import { ApiFile } from "@src/common/decorator/fileDecorator";
 import { FileData, HasMimeType, IsFileData, MaxFileSize, MimeType } from "nestjs-formdata-interceptor";
 
 export class CreateContributionDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsUUID()
+  uuid: string;
+
   @ApiProperty()
   @IsOptional()
   @IsString()
