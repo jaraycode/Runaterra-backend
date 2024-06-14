@@ -78,9 +78,9 @@ export class CategoriesService {
       throw new BadRequestException("Alguno de los criterios ingresados no existe");
     }
 
-    await this.updateCriteriaInCategory(id, updateCategoryDto.criteriaID);
-
     const { criteriaID, ...data } = updateCategoryDto;
+
+    await this.updateCriteriaInCategory(id, criteriaID);
 
     const result = await this.categoryRepository.update(id, data);
 
@@ -111,6 +111,11 @@ export class CategoriesService {
       relations: ["criteria"],
     });
 
+    const newCriterias = await this.criteriaRepository.find({ where: { id: In(newCriteriaIds) } });
+
+    for (let c of newCriterias) category.criteria.push(c);
+
+    console.log(category);
     // Filtra los criterios que ya no están presentes
     category.criteria = category.criteria.filter((c) => newCriteriaIds.includes(c.id));
 
