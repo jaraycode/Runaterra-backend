@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDefined, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsDefined, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateCategoryDto {
   @ApiProperty({ required: true })
@@ -14,8 +14,10 @@ export class CreateCategoryDto {
   description: string;
 
   @ApiProperty()
+  @IsInt()
   indicatorID: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: ["number"] })
+  @IsNumber({}, { each: true })
   criteriaID: number[];
 }
