@@ -67,8 +67,7 @@ export class ContributionsService {
       throw new NotFoundException("No existe esa contribución");
     }
 
-    const { file, ...data } = updateContributionDto;
-    const { files, ...rest } = data;
+    const { file, files, link, ...rest } = updateContributionDto;
     const result = await this.contributionReposiroty
       .createQueryBuilder()
       .update(rest)
