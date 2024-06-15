@@ -145,7 +145,7 @@ export class ContributionsService {
     if (!contributionByUUID) {
       throw new NotFoundException("No existe esa contribución");
     }
-
+    // ? Idea, VERIFICAR QUE LINKS Y ARCHIVOS TENGA LA MISMA CANTIDAD DE DATOS Y AGREGAR LOS QUE ESTÉN NUEVOS Y QUITAR LOS QUE NO APARECEN EN LOS ÚLTIMOS DATOS ENVIADOS
     const { file, files, link, ...rest } = updateContributionDto;
     const result = await this.contributionReposiroty
       .createQueryBuilder()
