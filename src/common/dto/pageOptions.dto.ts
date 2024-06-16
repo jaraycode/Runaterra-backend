@@ -34,4 +34,14 @@ export class PageOptionsDto {
   get skip(): number {
     return (this.page - 1) * this.take;
   }
+
+  @ApiPropertyOptional({
+    minimum: 1,
+    description: "This param is for indicator filter",
+  })
+  @Min(1)
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  readonly indicatorId?: number;
 }

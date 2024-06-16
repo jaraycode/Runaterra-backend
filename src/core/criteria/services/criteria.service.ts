@@ -38,9 +38,12 @@ export class CriteriaService {
     queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
     queryBuilder.orderBy("criteria.index", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
 
+    if (pageOptionsDto.indicatorId) {
+      queryBuilder.where("criteria.indicator = :indicator", { indicator: pageOptionsDto.indicatorId });
+    }
+
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
-
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
     return new PageDto(entities, pageMetaDto);
