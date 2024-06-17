@@ -49,15 +49,17 @@ export class ContributionsService {
   }
 
   async findAll(): Promise<Contribution[]> {
-    return await this.contributionReposiroty.find();
+    return await this.contributionReposiroty.find({
+      relations: ["files"],
+    });
   }
 
   async findOne(id: number): Promise<Contribution> {
-    return await this.contributionReposiroty.findOne({ where: { id } });
+    return await this.contributionReposiroty.findOne({ where: { id }, relations: ["files"] });
   }
 
   async findOneByUUID(uuid: string) {
-    return await this.contributionReposiroty.findOne({ where: { uuid } });
+    return await this.contributionReposiroty.findOne({ where: { uuid }, relations: ["files"] });
   }
 
   async update(uuid: string, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
