@@ -20,7 +20,6 @@ export class CategoriesService {
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     try {
-      console.log(createCategoryDto);
       const indicator = await this.indicatorService.findOne(createCategoryDto.indicatorID);
 
       if (!indicator) {
@@ -63,14 +62,20 @@ export class CategoriesService {
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     const category = await this.findOne(id);
+    const { criteriaID, indicatorID, ...data } = updateCategoryDto;
 
     if (!category) {
       throw new NotFoundException("Categoría no encontrado");
     }
+    const indicator = await this.indicatorService.findOne(indicatorID);
+
+    if (!indicator) {
+      throw new BadRequestException("Indicador ingresados no existe");
+    }
 
     const criteria = await this.criteriaRepository.find({
       where: {
-        id: In(updateCategoryDto.criteriaID),
+        id: In(criteriaID),
       },
     });
 
@@ -78,11 +83,9 @@ export class CategoriesService {
       throw new BadRequestException("Alguno de los criterios ingresados no existe");
     }
 
-    const { criteriaID, ...data } = updateCategoryDto;
-
     await this.updateCriteriaInCategory(id, criteriaID);
 
-    const result = await this.categoryRepository.update(id, data);
+    const result = await this.categoryRepository.update(id, { ...data, indicator: indicator });
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización de la categoría no se pudo realizar");
