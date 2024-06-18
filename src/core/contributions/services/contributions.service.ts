@@ -8,6 +8,7 @@ import { FilesService } from "@src/core/files/service/files.service";
 import { PageOptionsContributionDto } from "../dto/pageOptionsContribution.dto";
 import { PageDto } from "@src/common/dto/page.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
+import { Category } from "@src/core/categories/entities/category.entity";
 
 @Injectable()
 export class ContributionsService {
@@ -15,6 +16,8 @@ export class ContributionsService {
     @InjectRepository(Contribution)
     private readonly contributionReposiroty: Repository<Contribution>,
     private readonly filesService: FilesService,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>
   ) {}
   async create(createContributionDto: CreateContributionDto): Promise<Contribution> {
     let { files, file, ...data } = createContributionDto;
@@ -47,6 +50,10 @@ export class ContributionsService {
     });
 
     await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
+
+    const category = await this.categoryRepository.findOne()
+
+    await this.categoryRepository.save({...category, contribution: contribution})
 
     return contribution;
   }

@@ -12,7 +12,7 @@ import {
 import { Link } from "./link.entity";
 import { User } from "@src/core/users/entities/user.entity";
 import { Files } from "@src/core/files/entities/file.entity";
-import { Indicator } from "@src/core/indicators/entities/indicator.entity";
+import { Category } from "@src/core/categories/entities/category.entity";
 @Entity()
 export class Contribution {
   @ApiProperty()
@@ -34,11 +34,11 @@ export class Contribution {
   @ManyToOne(() => User, (user) => user.contributions)
   user: User;
 
-  @ManyToOne(() => User, (indicator) => indicator.contributions)
-  indicator: Indicator;
-
   @OneToMany(() => Files, (file) => file.contribution)
   files?: Files[];
+
+  @ManyToOne(() => Category, (category) => category.contribution)
+  category: Category;
 
   @ApiProperty()
   @CreateDateColumn({ type: "timestamptz" })
