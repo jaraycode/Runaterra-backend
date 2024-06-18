@@ -10,7 +10,7 @@ import { FilesService } from "@src/core/files/service/files.service";
 export class ContributionsService {
   constructor(
     @InjectRepository(Contribution)
-    private readonly contributionReposiroty: Repository<Contribution>,
+    private readonly contributionRepository: Repository<Contribution>,
     private readonly filesService: FilesService,
   ) {}
   async create(createContributionDto: CreateContributionDto): Promise<Contribution> {
@@ -29,10 +29,10 @@ export class ContributionsService {
       }
     }
 
-    const newcontribution = await this.contributionReposiroty.create(data);
-    await this.contributionReposiroty.save(newcontribution);
+    const newcontribution = await this.contributionRepository.create(data);
+    await this.contributionRepository.save(newcontribution);
 
-    const contribution = await this.contributionReposiroty.findOne({ where: { id: newcontribution.id } });
+    const contribution = await this.contributionRepository.findOne({ where: { id: newcontribution.id } });
 
     const unifiedFiles = files.map((fileItem, index) => {
       return {
@@ -49,17 +49,17 @@ export class ContributionsService {
   }
 
   async findAll(): Promise<Contribution[]> {
-    return await this.contributionReposiroty.find({
+    return await this.contributionRepository.find({
       relations: ["files"],
     });
   }
 
   async findOne(id: number): Promise<Contribution> {
-    return await this.contributionReposiroty.findOne({ where: { id }, relations: ["files"] });
+    return await this.contributionRepository.findOne({ where: { id }, relations: ["files"] });
   }
 
   async findOneByUUID(uuid: string) {
-    return await this.contributionReposiroty.findOne({ where: { uuid }, relations: ["files"] });
+    return await this.contributionRepository.findOne({ where: { uuid }, relations: ["files"] });
   }
 
   async update(uuid: string, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
@@ -70,7 +70,7 @@ export class ContributionsService {
     }
 
     const { file, files, link, ...rest } = updateContributionDto;
-    const result = await this.contributionReposiroty
+    const result = await this.contributionRepository
       .createQueryBuilder()
       .update(rest)
       .where("uuid = :uuid", { uuid })
@@ -91,7 +91,7 @@ export class ContributionsService {
       throw new NotFoundException("No se encontró la contribución");
     }
 
-    const result = await this.contributionReposiroty.softDelete(id);
+    const result = await this.contributionRepository.softDelete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");
