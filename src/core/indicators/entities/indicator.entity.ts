@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Category } from "@src/core/categories/entities/category.entity";
 import { Criteria } from "@src/core/criteria/entities/criteria.entity";
+import { Contribution } from "@src/core/contributions/entities/contribution.entity";
 import {
   Column,
   CreateDateColumn,
@@ -43,4 +44,7 @@ export class Indicator {
 
   @DeleteDateColumn({ type: "timestamptz" })
   deleteAt: Date;
+
+  @OneToMany(() => Contribution, (contribution) => contribution.indicator)
+  contribution: Contribution[];
 }

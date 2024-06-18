@@ -16,6 +16,16 @@ export class PageOptionsContributionDto extends PageOptionsDto {
 
   @ApiPropertyOptional({
     minimum: 1,
+    description: "This param is for criteria filter",
+  })
+  @Min(1)
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  readonly criteriaId?: number;
+
+  @ApiPropertyOptional({
+    minimum: 1,
     description: "This param is for departament filter",
   })
   @Min(1)
@@ -32,7 +42,7 @@ export class PageOptionsContributionDto extends PageOptionsDto {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  categoryId?: number;
+  readonly categoryId?: number;
 
   @ApiPropertyOptional({
     description: "This param is for date filter",

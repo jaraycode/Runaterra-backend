@@ -29,6 +29,9 @@ export class CreateContributionDto {
   @Type(() => CreateFileDto)
   @ValidateNested({ each: true })
   file: CreateFileDto[];
+  
+  @ApiProperty()
+  indicatorId: number;
 
   @ApiFile({ isArray: true })
   @IsArray()
