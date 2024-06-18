@@ -9,6 +9,7 @@ import { Indicator } from "@src/core/indicators/entities/indicator.entity";
 import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { PageDto } from "@src/common/dto/page.dto";
+import { PageOptionsCriteriaDto } from "../dto/pageOptionsCriteria.dto";
 
 @Injectable()
 export class CriteriaService {
@@ -32,7 +33,7 @@ export class CriteriaService {
   }
 
   // ? pagination. Looking if it works
-  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Criteria>> {
+  async findAll(pageOptionsDto: PageOptionsCriteriaDto): Promise<PageDto<Criteria>> {
     const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
 
     queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");

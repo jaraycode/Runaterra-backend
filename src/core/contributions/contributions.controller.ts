@@ -12,6 +12,7 @@ import {
   NotFoundException,
   Res,
   Req,
+  Query,
 } from "@nestjs/common";
 import { ContributionsService } from "./services/contributions.service";
 import { CreateContributionDto } from "./dto/create-contribution.dto";
@@ -21,6 +22,7 @@ import { Contribution } from "./entities/contribution.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import { ResponseUpdateContribution } from "./response/interceptorResponse";
 import * as express from "express";
+import { PageOptionsContributionDto } from "./dto/pageOptionsContribution.dto";
 @ApiTags("contributions")
 @Controller("contributions")
 export class ContributionsController {
@@ -71,8 +73,8 @@ export class ContributionsController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll() {
-    return await this.contributionsService.findAll();
+  async findAll(@Query() pageOptionsDto: PageOptionsContributionDto) {
+    return await this.contributionsService.findAll(pageOptionsDto);
   }
 
   @Get(":id")

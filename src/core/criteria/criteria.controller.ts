@@ -22,6 +22,7 @@ import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
 import { ResponseUpdateCriteria } from "./response/interceptorResponse";
 import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { PageOptionsCriteriaDto } from "./dto/pageOptionsCriteria.dto";
 
 @ApiTags("criteria")
 @Controller("criteria")
@@ -44,7 +45,7 @@ export class CriteriaController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+  async findAll(@Query() pageOptionsDto: PageOptionsCriteriaDto) {
     return await this.criteriaService.findAll(pageOptionsDto);
   }
 
