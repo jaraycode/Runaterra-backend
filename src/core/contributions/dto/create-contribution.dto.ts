@@ -33,6 +33,9 @@ export class CreateContributionDto {
   @ApiProperty()
   categoryId: number;
 
+  @ApiProperty()
+  indicatorID: number;
+
   @ApiFile({ isArray: true })
   @IsArray()
   @IsFileData({ each: true })
