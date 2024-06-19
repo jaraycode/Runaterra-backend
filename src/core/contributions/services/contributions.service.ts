@@ -11,6 +11,7 @@ import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { Category } from "@src/core/categories/entities/category.entity";
 import { User } from "@src/core/users/entities/user.entity";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
+import { Link } from "../entities/link.entity";
 
 @Injectable()
 export class ContributionsService {
@@ -147,9 +148,13 @@ export class ContributionsService {
     }
     // ? Idea, VERIFICAR QUE LINKS Y ARCHIVOS TENGA LA MISMA CANTIDAD DE DATOS Y AGREGAR LOS QUE ESTÉN NUEVOS Y QUITAR LOS QUE NO APARECEN EN LOS ÚLTIMOS DATOS ENVIADOS
     const { file, files, link, ...rest } = updateContributionDto;
+    const links: Link[] = [];
+
+    for (let l of link) links.push(l);
+
     const result = await this.contributionReposiroty
       .createQueryBuilder()
-      .update(rest)
+      .update({ ...rest, link: links })
       .where("uuid = :uuid", { uuid })
       .execute();
 
