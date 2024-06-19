@@ -27,9 +27,8 @@ export class CreateContributionDto {
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
   @Type(() => CreateFileDto)
-  @ValidateNested({ each: true })
   file: CreateFileDto[];
-  
+
   @ApiProperty()
   categoryId: number;
 
@@ -37,7 +36,6 @@ export class CreateContributionDto {
   indicatorID: number;
 
   @ApiFile({ isArray: true })
-  @IsArray()
   @IsFileData({ each: true })
   @HasMimeType([
     MimeType["video/mp4"],

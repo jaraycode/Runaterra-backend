@@ -38,6 +38,10 @@ export class ContributionsService {
       throw new NotFoundException("No existe esa categoría");
     }
 
+    if (!files || !file) {
+      throw new NotFoundException("No se encontraron archivos");
+    }
+
     if (files && !Array.isArray(files)) {
       files = [files];
     }
@@ -54,7 +58,7 @@ export class ContributionsService {
     const newcontribution = await this.contributionReposiroty.create(data);
     await this.contributionReposiroty.save(newcontribution);
 
-    const contribution = await this.contributionReposiroty.findOne({ where: { id: newcontribution.id } });
+    const contribution = await this.contributionReposiroty.findOne({ where: { id: Equal(newcontribution.id) } });
 
     const unifiedFiles = files.map((fileItem, index) => {
       return {
@@ -67,7 +71,14 @@ export class ContributionsService {
 
     await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
 
+    if (!category.contribution) {
+      category.contribution = [];
+    }
     category.contribution.push(contribution);
+
+    if (!activeUser.contributions) {
+      activeUser.contributions = [];
+    }
 
     activeUser.contributions.push(contribution);
 
@@ -83,17 +94,26 @@ export class ContributionsService {
 
     queryBuilder.leftJoinAndSelect("contribution.files", "files");
     queryBuilder.leftJoinAndSelect("contribution.user", "user");
+    queryBuilder.leftJoinAndSelect("contribution.category", "category");
+    queryBuilder.leftJoinAndSelect("user.department", "department");
+    queryBuilder.leftJoinAndSelect("category.indicator", "indicator");
+    queryBuilder.leftJoinAndSelect("category.criteria", "criteria");
+
     queryBuilder
       .orderBy("contribution.createAt", pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 
     if (pageOptionsDto.indicatorId) {
-      queryBuilder.where("contribution.indicator = :indicator", { indicator: pageOptionsDto.indicatorId });
+      queryBuilder.where("indicator.id = :indicator", { indicator: pageOptionsDto.indicatorId });
     }
 
     if (pageOptionsDto.dptoId) {
-      queryBuilder.where("contribution.dpto = :dpto", { dpto: pageOptionsDto.dptoId });
+      queryBuilder.where("user.department = :department", { dpto: pageOptionsDto.dptoId });
+    }
+
+    if (pageOptionsDto.criteriaId) {
+      queryBuilder.where("criteria.id = :criteria", { criteria: pageOptionsDto.criteriaId });
     }
 
     if (pageOptionsDto.categoryId) {

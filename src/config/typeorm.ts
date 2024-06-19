@@ -24,7 +24,7 @@ export const envData = {
   DATABASE_USERNAME: process.env.DATABASE_USERNAME,
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
   DATABASE_NAME: process.env.DATABASE_NAME,
-  SECRET: process.env.SECRET,
+  SECRET: process.env.JWT_SECRET,
   BACKEND_URL: process.env.BACKEND_URL,
 };
 
