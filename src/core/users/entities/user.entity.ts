@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserRole } from "@src/constants";
+import { Contribution } from "@src/core/contributions/entities/contribution.entity";
 import { Dpto } from "@src/core/dptos/entities/dpto.entity";
 import {
   Column,
@@ -7,6 +8,7 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -46,6 +48,10 @@ export class User {
   })
   @ManyToOne(() => Dpto, (dpto) => dpto.user)
   department: Dpto;
+
+  //relation with contribution
+  @OneToMany(() => Contribution, (contribution) => contribution.user)
+  contributions: Contribution[];
 
   @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date;

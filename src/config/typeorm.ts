@@ -12,7 +12,7 @@ const config = {
   password: `${process.env.DATABASE_PASSWORD}`,
   database: `${process.env.DATABASE_NAME}`,
   entities: ["dist/**/*.entity{.ts,.js}"],
-  migrations: ["dist/migrations/*{.ts,.js}"],
+  migrations: ["src/migrations/*{.ts,.js}"],
   migrationsRun: true,
   autoLoadEntities: true,
   synchronize: true,
@@ -24,7 +24,8 @@ export const envData = {
   DATABASE_USERNAME: process.env.DATABASE_USERNAME,
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
   DATABASE_NAME: process.env.DATABASE_NAME,
-  SECRET: process.env.SECRET,
+  SECRET: process.env.JWT_SECRET,
+  BACKEND_URL: process.env.BACKEND_URL,
 };
 
 export default registerAs("typeorm", () => config);

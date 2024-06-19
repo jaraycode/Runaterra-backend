@@ -7,8 +7,9 @@ import { Repository } from "typeorm";
 import { IndicatorsService } from "@src/core/indicators/services/indicators.service";
 import { Indicator } from "@src/core/indicators/entities/indicator.entity";
 import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
-import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { PageDto } from "@src/common/dto/page.dto";
+import { PageMetaDto } from "@src/common/dto/page.meta.dto";
+import { PageOptionsCriteriaDto } from "../dto/pageOptionsCriteria.dto";
 
 @Injectable()
 export class CriteriaService {
@@ -32,22 +33,28 @@ export class CriteriaService {
   }
 
   // ? pagination. Looking if it works
-  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Criteria>> {
+  async findAll(pageOptionsDto: PageOptionsCriteriaDto): Promise<PageDto<Criteria>> {
     const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
 
     queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
     queryBuilder.orderBy("criteria.index", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
 
+    if (pageOptionsDto.indicatorId) {
+      queryBuilder.where("criteria.indicator = :indicator", { indicator: pageOptionsDto.indicatorId });
+    }
+
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
-
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
     return new PageDto(entities, pageMetaDto);
   }
 
   async findOne(id: number): Promise<Criteria> {
-    return await this.criteriaRepository.findOne({ where: { id } });
+    const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
+    queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
+    queryBuilder.where("criteria.id = :id", { id: id });
+    return queryBuilder.getOne();
   }
 
   async update(id: number, updateCriteriaDto: UpdateCriteriaDto): Promise<Criteria> {
@@ -57,7 +64,15 @@ export class CriteriaService {
       throw new NotFoundException("Criterio no encontrado");
     }
 
-    const result = await this.criteriaRepository.update(id, updateCriteriaDto);
+    const indicador = await this.indicatorService.findOne(updateCriteriaDto.indicatorID);
+
+    if (!indicador) {
+      throw new BadRequestException("El indicador no existe");
+    }
+
+    const { indicatorID, ...data } = updateCriteriaDto;
+
+    const result = await this.criteriaRepository.update(id, { ...data, indicator: indicador });
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización del criterio no se pudo realizar");

@@ -12,6 +12,10 @@ import { DptosModule } from "./core/dptos/dptos.module";
 import { IndicatorsModule } from "./core/indicators/indicators.module";
 import { CategoriesModule } from "./core/categories/categories.module";
 import { CriteriaModule } from "./core/criteria/criteria.module";
+import { ContributionsModule } from "./core/contributions/contributions.module";
+import { join } from "path";
+import { ServeStaticModule } from "@nestjs/serve-static/dist/serve-static.module";
+import { FilesModule } from "./core/files/files.module";
 
 @Module({
   imports: [
@@ -23,12 +27,18 @@ import { CriteriaModule } from "./core/criteria/criteria.module";
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => configService.get("typeorm"),
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "../public"),
+      serveRoot: "/public/",
+    }),
     UsersModule,
     AuthModule,
     DptosModule,
     IndicatorsModule,
     CategoriesModule,
     CriteriaModule,
+    ContributionsModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

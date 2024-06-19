@@ -20,8 +20,9 @@ import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator
 import { Criteria } from "./entities/criteria.entity";
 import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
-import { ResponseUpdateCriteria } from "./response/interceptorResponse";
+import { ApiPaginatedResponse } from "@src/utils/apiPaginatedResponse";
 import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { PageOptionsCriteriaDto } from "./dto/pageOptionsCriteria.dto";
 
 @ApiTags("criteria")
 @Controller("criteria")
@@ -44,7 +45,7 @@ export class CriteriaController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+  async findAll(@Query() pageOptionsDto: PageOptionsCriteriaDto) {
     return await this.criteriaService.findAll(pageOptionsDto);
   }
 
@@ -64,7 +65,7 @@ export class CriteriaController {
   @ApiResponse({
     status: 200,
     description: "Response of user update",
-    type: ResponseUpdateCriteria, // ResponseUpdateCriteria
+    type: Criteria, // ResponseUpdateCriteria
   })
   @ApiException(() => NotFoundException, {
     description: "Criteria not found",
@@ -77,6 +78,7 @@ export class CriteriaController {
         data: criteria,
       });
     } catch (error) {
+      console.log(error);
       return res.status(error.status).json({
         message: error.message,
       });

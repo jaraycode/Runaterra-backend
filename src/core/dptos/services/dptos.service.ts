@@ -26,6 +26,7 @@ export class DptosService {
       },
       take: pageOptionsDto.take,
       skip: pageOptionsDto.skip,
+      relations: ["user"],
     });
 
     const pageMetaDto = new PageMetaDto({

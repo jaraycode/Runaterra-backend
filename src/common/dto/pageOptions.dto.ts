@@ -35,4 +35,6 @@ export class PageOptionsDto {
   get skip(): number {
     return (this.page - 1) * this.take;
   }
+
+  set skip(value: number) {}
 }
