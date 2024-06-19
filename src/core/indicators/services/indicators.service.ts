@@ -15,7 +15,6 @@ export class IndicatorsService {
   async create(createIndicatorDto: CreateIndicatorDto): Promise<Indicator> {
     return await this.indicatorRepository.save(createIndicatorDto);
   }
-  // ? Pendiente por realizar paginación
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Indicator>> {
     const queryBuilder = await this.indicatorRepository.createQueryBuilder("indicator");
 

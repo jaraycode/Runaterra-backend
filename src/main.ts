@@ -11,6 +11,7 @@ import { ExceptionsFilter } from "@tresdoce-nestjs-toolkit/filters";
 import { ConfigService } from "@nestjs/config";
 import { FormdataInterceptor, DefaultFileSaver } from "nestjs-formdata-interceptor";
 import * as multer from "multer";
+import { ValidationPipe } from "@nestjs/common";
 
 async function bootstrap() {
   const PORT = process.env.PORT || 8000;
@@ -26,6 +27,12 @@ async function bootstrap() {
   app.enableCors(CORS);
 
   app.setGlobalPrefix("api/v1");
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   app.useGlobalFilters(new ExceptionsFilter(appConfig));
 
@@ -54,8 +61,8 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle("HealTrack API")
-    .setDescription("Esta es la api de HealTrack")
+    .setTitle("Green Metrics API")
+    .setDescription("Esta es la api de Green Metrics")
     .setVersion("1.0")
     .addTag("users")
     .addTag("departments")

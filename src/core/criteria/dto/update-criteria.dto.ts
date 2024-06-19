@@ -18,4 +18,7 @@ export class UpdateCriteriaDto {
   @IsOptional()
   @IsString()
   description: string;
+
+  @ApiProperty()
+  indicatorID: number;
 }
