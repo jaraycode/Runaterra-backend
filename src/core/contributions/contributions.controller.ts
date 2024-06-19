@@ -23,11 +23,16 @@ import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator
 import { ResponseUpdateContribution } from "./response/interceptorResponse";
 import * as express from "express";
 import { PageOptionsContributionDto } from "./dto/pageOptionsContribution.dto";
+import { ActiveUser } from "@src/common/decorator/active-user.decorator";
+import { UserActiveInterface } from "@src/common/interface/user.active.interface";
+import { Auth } from "../auth/decorators/auth.decorator";
+import { UserRole } from "@src/constants";
 @ApiTags("contributions")
 @Controller("contributions")
 export class ContributionsController {
   constructor(private readonly contributionsService: ContributionsService) {}
 
+  @Auth(UserRole.DPTO)
   @ApiConsumes("multipart/form-data")
   @Post()
   @HttpCode(HttpStatus.OK)
@@ -39,7 +44,7 @@ export class ContributionsController {
   @ApiException(() => BadRequestException, {
     description: "Required atributes were missing",
   })
-  async create(@Body() createContributionDto: CreateContributionDto) {
+  async create(@Body() createContributionDto: CreateContributionDto, @ActiveUser() user: UserActiveInterface) {
     const { uuid, ...rest } = createContributionDto;
     const idempotency = await this.contributionsService.findOneByUUID(uuid);
     if (!idempotency) {
@@ -65,7 +70,7 @@ export class ContributionsController {
         );
       }
 
-      return await this.contributionsService.create(createContributionDto);
+      return await this.contributionsService.create(createContributionDto, user);
     }
     const updateContributionDto: UpdateContributionDto = rest;
     return await this.contributionsService.update(uuid, updateContributionDto);

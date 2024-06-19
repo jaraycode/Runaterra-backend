@@ -3,12 +3,14 @@ import { CreateContributionDto } from "../dto/create-contribution.dto";
 import { UpdateContributionDto } from "../dto/update-contribution.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Contribution } from "../entities/contribution.entity";
-import { Repository } from "typeorm";
+import { Equal, Repository } from "typeorm";
 import { FilesService } from "@src/core/files/service/files.service";
 import { PageOptionsContributionDto } from "../dto/pageOptionsContribution.dto";
 import { PageDto } from "@src/common/dto/page.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { Category } from "@src/core/categories/entities/category.entity";
+import { User } from "@src/core/users/entities/user.entity";
+import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 
 @Injectable()
 export class ContributionsService {
@@ -16,11 +18,25 @@ export class ContributionsService {
     @InjectRepository(Contribution)
     private readonly contributionReposiroty: Repository<Contribution>,
     private readonly filesService: FilesService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>
+    private readonly categoryRepository: Repository<Category>,
   ) {}
-  async create(createContributionDto: CreateContributionDto): Promise<Contribution> {
-    let { files, file, ...data } = createContributionDto;
+  async create(createContributionDto: CreateContributionDto, user: UserActiveInterface): Promise<Contribution> {
+    let { files, file, categoryId, ...data } = createContributionDto;
+
+    const activeUser = await this.userRepository.findOne({ where: { id: Equal(user.id) } });
+
+    if (!activeUser) {
+      throw new NotFoundException("No existe ese usuario");
+    }
+
+    const category = await this.categoryRepository.findOne({ where: { id: Equal(categoryId) } });
+
+    if (!category) {
+      throw new NotFoundException("No existe esa categoría");
+    }
 
     if (files && !Array.isArray(files)) {
       files = [files];
@@ -51,9 +67,13 @@ export class ContributionsService {
 
     await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
 
-    const category = await this.categoryRepository.findOne()
+    category.contribution.push(contribution);
 
-    await this.categoryRepository.save({...category, contribution: contribution})
+    activeUser.contributions.push(contribution);
+
+    await this.categoryRepository.save(category);
+
+    await this.userRepository.save(activeUser);
 
     return contribution;
   }
