@@ -20,11 +20,9 @@ export class UpdateContributionDto {
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
   @Type(() => CreateFileDto)
-  @ValidateNested({ each: true })
   file: CreateFileDto[];
 
   @ApiFile({ isArray: true })
-  @IsArray()
   @IsFileData({ each: true })
   @HasMimeType([
     MimeType["video/mp4"],
