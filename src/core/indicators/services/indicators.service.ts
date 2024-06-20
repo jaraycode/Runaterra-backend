@@ -29,6 +29,10 @@ export class IndicatorsService {
     return new PageDto(entities, pageMetaDto);
   }
 
+  async findAllWithoutPagination(): Promise<Indicator[]> {
+    return await this.indicatorRepository.find({ relations: ["criteria", "cateogories"] });
+  }
+
   async findOne(id: number): Promise<Indicator> {
     return await this.indicatorRepository.findOne({ where: { id } });
   }

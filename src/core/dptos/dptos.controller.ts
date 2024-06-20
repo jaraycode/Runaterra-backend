@@ -51,6 +51,12 @@ export class DptosController {
     return await this.dptosService.findAll(pageOptionsDto);
   }
 
+  @Get("notPag")
+  @HttpCode(HttpStatus.OK)
+  async findAllWithoutPagination() {
+    return await this.dptosService.findAllWithoutPagination();
+  }
+
   @Get(":id")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({

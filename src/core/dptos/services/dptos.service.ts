@@ -1,22 +1,35 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateDptoDto } from "../dto/create-dpto.dto";
 import { UpdateDptoDto } from "../dto/update-dpto.dto";
 import { Dpto } from "../entities/dpto.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 import { PageDto } from "@src/common/dto/page.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
+import { Category } from "@src/core/categories/entities/category.entity";
 
 @Injectable()
 export class DptosService {
   constructor(
     @InjectRepository(Dpto)
     private readonly dptoRepository: Repository<Dpto>,
+    @InjectRepository(Category)
+    private readonly categoriesRepository: Repository<Category>,
   ) {}
 
   async create(createDptoDto: CreateDptoDto): Promise<Dpto> {
-    return await this.dptoRepository.save(createDptoDto);
+    const categories = await this.categoriesRepository.find({
+      where: {
+        id: In(createDptoDto.categoriesIDs),
+      },
+    });
+
+    if (!categories) {
+      throw new BadRequestException("Alguna de las categorias ingresadas no existe");
+    }
+
+    return await this.dptoRepository.save({ ...createDptoDto, categoriesIDs: categories });
   }
 
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Dpto>> {
@@ -35,6 +48,10 @@ export class DptosService {
     });
 
     return new PageDto(result, pageMetaDto);
+  }
+
+  async findAllWithoutPagination(): Promise<Dpto[]> {
+    return await this.dptoRepository.find({ relations: ["user"] });
   }
 
   async findOne(id: number): Promise<Dpto> {

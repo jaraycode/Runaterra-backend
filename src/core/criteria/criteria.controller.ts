@@ -49,6 +49,12 @@ export class CriteriaController {
     return await this.criteriaService.findAll(pageOptionsDto);
   }
 
+  @Get("notPag")
+  @HttpCode(HttpStatus.OK)
+  async findAllWithoutPagination() {
+    return await this.criteriaService.findAllWithoutPagination();
+  }
+
   @Get(":id")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({

@@ -50,6 +50,10 @@ export class CriteriaService {
     return new PageDto(entities, pageMetaDto);
   }
 
+  async findAllWithoutPagination(): Promise<Criteria[]> {
+    return await this.criteriaRepository.find({ relations: ["indicator", "categories"] });
+  }
+
   async findOne(id: number): Promise<Criteria> {
     const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
     queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");

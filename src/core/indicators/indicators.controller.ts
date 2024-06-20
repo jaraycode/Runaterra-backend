@@ -55,6 +55,12 @@ export class IndicatorsController {
     return this.indicatorsService.findAll(pageOptionsDto);
   }
 
+  @Get("notPag")
+  @HttpCode(HttpStatus.OK)
+  async findAllWithoutPagination() {
+    return await this.indicatorsService.findAllWithoutPagination();
+  }
+
   @Get(":id")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({

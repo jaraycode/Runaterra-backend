@@ -49,7 +49,6 @@ export class CategoriesService {
     }
   }
 
-  // TODO: pagination
   async findAll(): Promise<Category[]> {
     return await this.categoryRepository.find({
       relations: ["indicator", "criteria"],
