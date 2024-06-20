@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDefined, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import { IsDefined, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CreateCriteriaDto {
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: true, example: "Settings" })
   @IsNotEmpty()
   @IsDefined()
   @IsString()
@@ -20,5 +20,8 @@ export class CreateCriteriaDto {
   description: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsDefined()
+  @IsInt()
   indicatorID: number;
 }

@@ -116,8 +116,6 @@ export class CategoriesService {
     const newCriterias = await this.criteriaRepository.find({ where: { id: In(newCriteriaIds) } });
 
     for (let c of newCriterias) category.criteria.push(c);
-
-    console.log(category);
     // Filtra los criterios que ya no están presentes
     category.criteria = category.criteria.filter((c) => newCriteriaIds.includes(c.id));
 

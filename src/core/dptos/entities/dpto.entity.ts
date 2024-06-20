@@ -26,8 +26,23 @@ export class Dpto {
   @OneToMany(() => User, (user) => user.department)
   user: User[];
 
-  @ManyToMany(() => Category)
-  @JoinTable()
+  @ManyToMany(() => Category, (categories) => categories.dptos, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+    cascade: true,
+    eager: true,
+  })
+  @JoinTable({
+    name: "dpto_category",
+    joinColumn: {
+      name: "dptoId",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "categoryId",
+      referencedColumnName: "id",
+    },
+  })
   categories: Category[];
 
   @CreateDateColumn({ type: "timestamptz" })

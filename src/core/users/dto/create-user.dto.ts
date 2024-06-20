@@ -8,6 +8,7 @@ import {
   IsDefined,
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -58,5 +59,8 @@ export class CreateUserDto {
   birthdate: string;
 
   @ApiProperty()
+  @IsNotEmpty()
+  @IsDefined()
+  @IsInt()
   departmentId: number;
 }

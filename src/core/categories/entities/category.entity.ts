@@ -1,12 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Contribution } from "@src/core/contributions/entities/contribution.entity";
 import { Criteria } from "@src/core/criteria/entities/criteria.entity";
+import { Dpto } from "@src/core/dptos/entities/dpto.entity";
 import { Indicator } from "@src/core/indicators/entities/indicator.entity";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -35,6 +37,9 @@ export class Category {
 
   @OneToMany(() => Criteria, (criteria) => criteria.categories)
   criteria: Criteria[];
+
+  @ManyToMany(() => Dpto, (dpto) => dpto.categories)
+  dptos: Dpto[];
 
   @CreateDateColumn({ type: "timestamptz" })
   createAt: Date;

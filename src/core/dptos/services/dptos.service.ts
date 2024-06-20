@@ -19,6 +19,8 @@ export class DptosService {
   ) {}
 
   async create(createDptoDto: CreateDptoDto): Promise<Dpto> {
+    const newDpto = new Dpto();
+    const { categoriesIDs, name } = createDptoDto;
     const categories = await this.categoriesRepository.find({
       where: {
         id: In(createDptoDto.categoriesIDs),
@@ -29,7 +31,10 @@ export class DptosService {
       throw new BadRequestException("Alguna de las categorias ingresadas no existe");
     }
 
-    return await this.dptoRepository.save({ ...createDptoDto, categoriesIDs: categories });
+    newDpto.name = name;
+    newDpto.categories = categories;
+
+    return await this.dptoRepository.save(newDpto);
   }
 
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Dpto>> {
@@ -51,7 +56,7 @@ export class DptosService {
   }
 
   async findAllWithoutPagination(): Promise<Dpto[]> {
-    return await this.dptoRepository.find({ relations: ["user"] });
+    return await this.dptoRepository.find({ relations: ["user", "categories"] });
   }
 
   async findOne(id: number): Promise<Dpto> {
@@ -59,13 +64,22 @@ export class DptosService {
   }
 
   async update(id: number, updateDptoDto: UpdateDptoDto): Promise<Dpto> {
+    const { categoriesIDs, name } = updateDptoDto;
+
     const department = await this.findOne(id);
 
     if (!department) {
       throw new NotFoundException("Departamento no encontrado");
     }
 
-    const resultado = await this.dptoRepository.update(id, updateDptoDto);
+    const newCategories = await this.categoriesRepository.find({ where: { id: In(categoriesIDs) } });
+
+    for (let c of newCategories) department.categories.push(c);
+
+    department.name = name;
+    department.categories = department.categories.filter((c) => categoriesIDs.includes(c.id));
+
+    const resultado = await this.dptoRepository.update(id, department);
 
     if (resultado.affected === 0) {
       throw new NotFoundException("La actualización del departamento no se pudo realizar");

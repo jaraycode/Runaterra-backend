@@ -30,11 +30,11 @@ export class IndicatorsService {
   }
 
   async findAllWithoutPagination(): Promise<Indicator[]> {
-    return await this.indicatorRepository.find({ relations: ["criteria", "cateogories"] });
+    return await this.indicatorRepository.find({ relations: ["criteria", "categories"] });
   }
 
   async findOne(id: number): Promise<Indicator> {
-    return await this.indicatorRepository.findOne({ where: { id } });
+    return await this.indicatorRepository.findOne({ where: { id: id } });
   }
 
   async update(id: number, updateIndicatorDto: UpdateIndicatorDto) {

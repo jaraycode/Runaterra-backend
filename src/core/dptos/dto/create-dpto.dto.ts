@@ -10,7 +10,7 @@ export class CreateDptoDto {
   @MaxLength(30)
   name: string;
 
-  @ApiProperty({ type: ["number"], required: false })
+  @ApiProperty({ type: ["number"], required: true })
   @IsNumber({}, { each: true })
   categoriesIDs: number[];
 }
