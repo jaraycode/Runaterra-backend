@@ -57,6 +57,12 @@ export class DptosController {
     return await this.dptosService.findAllWithoutPagination();
   }
 
+  @Get("matrix/:id") // ! Not working
+  @HttpCode(HttpStatus.OK)
+  async getMatrix(@Param("id") id: string) {
+    return await this.dptosService.getMatrix(+id);
+  }
+
   @Get(":id")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({

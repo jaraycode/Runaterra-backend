@@ -8,6 +8,7 @@ import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 import { PageDto } from "@src/common/dto/page.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { Category } from "@src/core/categories/entities/category.entity";
+import { Contribution } from "@src/core/contributions/entities/contribution.entity";
 
 @Injectable()
 export class DptosService {
@@ -16,6 +17,8 @@ export class DptosService {
     private readonly dptoRepository: Repository<Dpto>,
     @InjectRepository(Category)
     private readonly categoriesRepository: Repository<Category>,
+    @InjectRepository(Contribution)
+    private readonly contributionRepository: Repository<Contribution>,
   ) {}
 
   async create(createDptoDto: CreateDptoDto): Promise<Dpto> {
@@ -59,33 +62,83 @@ export class DptosService {
     return await this.dptoRepository.find({ relations: ["user", "categories"] });
   }
 
-  async findOne(id: number): Promise<Dpto> {
-    return this.dptoRepository.findOne({ where: { id } });
-  }
-
-  async update(id: number, updateDptoDto: UpdateDptoDto): Promise<Dpto> {
-    const { categoriesIDs, name } = updateDptoDto;
-
-    const department = await this.findOne(id);
+  async getMatrix(id: number) {
+    const department = await this.dptoRepository.findOne({ where: { id: id }, relations: ["user", "categories"] });
 
     if (!department) {
       throw new NotFoundException("Departamento no encontrado");
     }
 
-    const newCategories = await this.categoriesRepository.find({ where: { id: In(categoriesIDs) } });
+    const allCategories = await this.categoriesRepository.find(); // ! Need to filter all categories that are inside department
 
-    for (let c of newCategories) department.categories.push(c);
+    // ! Using filtered categories search for the quantity of the contributions
+    // TODO: function to quantify contributions for that user
 
-    department.name = name;
-    department.categories = department.categories.filter((c) => categoriesIDs.includes(c.id));
+    const filteredCategories = await this.potencialCategories(allCategories, department);
 
-    const resultado = await this.dptoRepository.update(id, department);
+    const matrix = {
+      departmentName: department.name,
+      categories: filteredCategories,
+    };
 
-    if (resultado.affected === 0) {
-      throw new NotFoundException("La actualización del departamento no se pudo realizar");
+    return matrix;
+  }
+
+  // ! Falta probarla, se puede mejorar eficiencia
+  async potencialCategories(categories: Category[], dpto: Dpto) {
+    const userContributions = await this.contributionRepository.find({
+      where: { user: dpto.user },
+      relations: ["category"],
+    });
+    let potencial = [];
+    for (let c of categories) {
+      let quantity = 0;
+      let potencially = false;
+      userContributions.every((element) => {
+        if (element.category.id === c.id) quantity++;
+      });
+      for (let cp of dpto.categories) {
+        if (cp.id === c.id) potencially = true;
+      }
+      potencial.push({ id: c.id, potencially: potencially, quantity: quantity });
     }
 
-    return await this.findOne(id);
+    return potencial;
+  }
+
+  async findOne(id: number): Promise<Dpto> {
+    return await this.dptoRepository.findOne({ where: { id } });
+  }
+
+  async update(id: number, updateDptoDto: UpdateDptoDto): Promise<Dpto> {
+    try {
+      const { categoriesIDs, name } = updateDptoDto;
+
+      const department = await this.findOne(id);
+
+      if (!department) {
+        throw new NotFoundException("Departamento no encontrado");
+      }
+
+      const newCategories = await this.categoriesRepository.find({ where: { id: In(categoriesIDs) } });
+
+      for (let c of newCategories) department.categories.push(c);
+
+      department.name = name;
+      department.categories = department.categories.filter((c) => categoriesIDs.includes(c.id));
+
+      await this.dptoRepository.save(department);
+
+      const resultado = await this.dptoRepository.update(id, department);
+
+      if (resultado.affected === 0) {
+        throw new NotFoundException("La actualización del departamento no se pudo realizar");
+      }
+
+      return await this.findOne(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async remove(id: number) {
