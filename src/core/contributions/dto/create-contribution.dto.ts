@@ -21,18 +21,19 @@ export class CreateContributionDto {
   @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
   @IsOptional()
   @Type(() => CreateLinkDto)
-  @Transform(({ value }) => (typeof value === "string" ? JSON.parse(value) : value))
-  @ValidateNested()
   link: Link[];
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
+  @IsNotEmpty()
   @Type(() => CreateFileDto)
   file: CreateFileDto[];
 
   @ApiProperty()
+  @IsNotEmpty()
   categoryId: number;
 
   @ApiProperty()
+  @IsNotEmpty()
   indicatorID: number;
 
   @ApiFile({ isArray: true })

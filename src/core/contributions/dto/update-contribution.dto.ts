@@ -19,10 +19,12 @@ export class UpdateContributionDto {
   link: Link[];
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
+  @IsOptional()
   @Type(() => CreateFileDto)
   file: CreateFileDto[];
 
   @ApiFile({ isArray: true })
+  @IsOptional()
   @IsFileData({ each: true })
   @HasMimeType([
     MimeType["video/mp4"],

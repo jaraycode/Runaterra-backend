@@ -27,6 +27,7 @@ import { ActiveUser } from "@src/common/decorator/active-user.decorator";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { Auth } from "../auth/decorators/auth.decorator";
 import { UserRole } from "@src/constants";
+import { handleContributionDtoField } from "@src/utils/transformer-multipart-formdata";
 @ApiTags("contributions")
 @Controller("contributions")
 export class ContributionsController {
@@ -45,34 +46,16 @@ export class ContributionsController {
     description: "Required atributes were missing",
   })
   async create(@Body() createContributionDto: CreateContributionDto, @ActiveUser() user: UserActiveInterface) {
+    createContributionDto.link = handleContributionDtoField(createContributionDto.link);
+    createContributionDto.file = handleContributionDtoField(createContributionDto.file);
     const { uuid, ...rest } = createContributionDto;
+
     const idempotency = await this.contributionsService.findOneByUUID(uuid);
     if (!idempotency) {
-      if (typeof createContributionDto.link === "string") {
-        const links = (createContributionDto.link as string).split("},{").map((item) => {
-          if (!item.startsWith("{")) item = "{" + item;
-          if (!item.endsWith("}")) item = item + "}";
-          return JSON.parse(item);
-        });
-        createContributionDto.link = links;
-      }
-
-      if (typeof createContributionDto.file === "string") {
-        const files = (createContributionDto.file as string).split("},{").map((item) => {
-          if (!item.startsWith("{")) item = "{" + item;
-          if (!item.endsWith("}")) item = item + "}";
-          return JSON.parse(item);
-        });
-        createContributionDto.file = files;
-      } else if (Array.isArray(createContributionDto.file)) {
-        createContributionDto.file = createContributionDto.file.map((item) =>
-          typeof item === "string" ? JSON.parse(item) : item,
-        );
-      }
-
       return await this.contributionsService.create(createContributionDto, user);
     }
-    const updateContributionDto: UpdateContributionDto = rest;
+    const { categoryId, indicatorID, ...data } = rest;
+    const updateContributionDto: UpdateContributionDto = data;
     return await this.contributionsService.update(uuid, updateContributionDto);
   }
 

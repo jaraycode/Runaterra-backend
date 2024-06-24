@@ -25,7 +25,7 @@ export class ContributionsService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
   async create(createContributionDto: CreateContributionDto, user: UserActiveInterface): Promise<Contribution> {
-    let { files, file, categoryId, ...data } = createContributionDto;
+    let { files, file, categoryId, indicatorID, ...data } = createContributionDto;
 
     const activeUser = await this.userRepository.findOne({ where: { id: Equal(user.id) } });
 
@@ -141,13 +141,14 @@ export class ContributionsService {
   }
 
   async update(uuid: string, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
-    const contributionByUUID = this.findOneByUUID(uuid);
+    const contributionByUUID = await this.findOneByUUID(uuid);
 
     if (!contributionByUUID) {
       throw new NotFoundException("No existe esa contribución");
     }
     // ? Idea, VERIFICAR QUE LINKS Y ARCHIVOS TENGA LA MISMA CANTIDAD DE DATOS Y AGREGAR LOS QUE ESTÉN NUEVOS Y QUITAR LOS QUE NO APARECEN EN LOS ÚLTIMOS DATOS ENVIADOS
     const { file, files, link, ...rest } = updateContributionDto;
+
     const links: Link[] = [];
 
     for (let l of link) links.push(l);
