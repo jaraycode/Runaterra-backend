@@ -62,29 +62,27 @@ export class DptosService {
     return await this.dptoRepository.find({ relations: ["user", "categories"] });
   }
 
-  async getMatrix(id: number) {
-    const department = await this.dptoRepository.findOne({ where: { id: id }, relations: ["user", "categories"] });
+  async getMatrix() {
+    const department = await this.findAllWithoutPagination();
 
     if (!department) {
       throw new NotFoundException("Departamento no encontrado");
     }
 
-    const allCategories = await this.categoriesRepository.find(); // ! Need to filter all categories that are inside department
+    const allCategories = await this.categoriesRepository.find();
 
-    // ! Using filtered categories search for the quantity of the contributions
-    // TODO: function to quantify contributions for that user
-
-    const filteredCategories = await this.potencialCategories(allCategories, department);
-
-    const matrix = {
-      departmentName: department.name,
-      categories: filteredCategories,
-    };
+    const matrix = [];
+    for (let d of department) {
+      const filteredCategories = await this.potencialCategories(allCategories, d);
+      matrix.push({
+        departmentName: d.name,
+        categories: filteredCategories,
+      });
+    }
 
     return matrix;
   }
 
-  // ! Falta probarla, se puede mejorar eficiencia
   async potencialCategories(categories: Category[], dpto: Dpto) {
     const userContributions = await this.contributionRepository.find({
       where: { user: dpto.user },
