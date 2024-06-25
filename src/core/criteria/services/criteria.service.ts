@@ -10,6 +10,8 @@ import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 import { PageDto } from "@src/common/dto/page.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { PageOptionsCriteriaDto } from "../dto/pageOptionsCriteria.dto";
+import { ExportDocxAction } from "./actions/export-docx.action";
+
 
 @Injectable()
 export class CriteriaService {
@@ -17,7 +19,13 @@ export class CriteriaService {
     @InjectRepository(Criteria)
     private readonly criteriaRepository: Repository<Criteria>,
     private readonly indicatorService: IndicatorsService,
+    private readonly exportDocxAction: ExportDocxAction,
   ) {}
+
+  async exportDocx(id: number): Promise<Buffer> {
+    // No hago absolutamente nada :)
+    return await this.exportDocxAction.execute(id);
+  }
 
   async create(createCriteriaDto: CreateCriteriaDto): Promise<Criteria> {
     const indicator = await this.indicatorService.findOne(createCriteriaDto.indicatorID);
