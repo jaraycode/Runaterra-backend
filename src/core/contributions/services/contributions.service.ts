@@ -27,13 +27,19 @@ export class ContributionsService {
   async create(createContributionDto: CreateContributionDto, user: UserActiveInterface): Promise<Contribution> {
     let { files, file, categoryId, indicatorID, ...data } = createContributionDto;
 
-    const activeUser = await this.userRepository.findOne({ where: { id: Equal(user.id) } });
+    const activeUser = await this.userRepository.findOne({
+      where: { id: Equal(user.id) },
+      relations: ["contributions"],
+    });
 
     if (!activeUser) {
       throw new NotFoundException("No existe ese usuario");
     }
 
-    const category = await this.categoryRepository.findOne({ where: { id: Equal(categoryId) } });
+    const category = await this.categoryRepository.findOne({
+      where: { id: Equal(categoryId) },
+      relations: ["contribution"],
+    });
 
     if (!category) {
       throw new NotFoundException("No existe esa categoría");
@@ -72,14 +78,7 @@ export class ContributionsService {
 
     await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
 
-    if (!category.contribution) {
-      category.contribution = [];
-    }
     category.contribution.push(contribution);
-
-    if (!activeUser.contributions) {
-      activeUser.contributions = [];
-    }
 
     activeUser.contributions.push(contribution);
 
