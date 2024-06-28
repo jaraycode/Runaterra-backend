@@ -65,6 +65,13 @@ export class ContributionsController {
     return await this.contributionsService.findAll(pageOptionsDto);
   }
 
+  @Auth(UserRole.DPTO)
+  @Get("my-contribution")
+  @HttpCode(HttpStatus.OK)
+  async findMyContribution(@Query() pageOptionsDto: PageOptionsContributionDto, @ActiveUser() user: UserActiveInterface) {
+    return await this.contributionsService.findMyContribution(pageOptionsDto, user);
+  }
+
   @Get(":id")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
