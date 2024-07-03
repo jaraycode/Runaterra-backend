@@ -1,9 +1,5 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Category } from "@src/core/categories/entities/category.entity";
-import { CategoriesService } from "@src/core/categories/services/categories.service";
+import { Injectable } from "@nestjs/common";
 import { AlignmentType, HeadingLevel, Paragraph, TextRun } from "docx";
-import { Repository } from "typeorm/repository/Repository";
 import { Criteria } from "../../entities/criteria.entity";
 
 @Injectable()
@@ -67,8 +63,6 @@ export class RenderContributions {
       );
 
       criteria.categories.contribution[i].files.forEach((file) => {
-        console.log("------------------->", file.description);
-
         paragraphArray.push(
           new Paragraph({
             children: [
