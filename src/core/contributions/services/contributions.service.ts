@@ -90,9 +90,57 @@ export class ContributionsService {
   }
 
   async findAll(pageOptionsDto: PageOptionsContributionDto): Promise<PageDto<Contribution>> {
-
     try {
       const queryBuilder = await this.contributionReposiroty.createQueryBuilder("contribution");
+
+      queryBuilder.leftJoinAndSelect("contribution.files", "files");
+      queryBuilder.leftJoinAndSelect("contribution.user", "user");
+      queryBuilder.leftJoinAndSelect("contribution.category", "category");
+      queryBuilder.leftJoinAndSelect("user.department", "department");
+      queryBuilder.leftJoinAndSelect("category.indicator", "indicator");
+      queryBuilder.leftJoinAndSelect("category.criteria", "criteria");
+
+      queryBuilder
+        .orderBy("contribution.createAt", pageOptionsDto.order)
+        .skip(pageOptionsDto.skip)
+        .take(pageOptionsDto.take);
+
+      if (pageOptionsDto.indicatorId) {
+        queryBuilder.andWhere("indicator.id = :indicator", { indicator: pageOptionsDto.indicatorId });
+      }
+
+      if (pageOptionsDto.dptoId) {
+        queryBuilder.andWhere("user.department.id = :department", { department: pageOptionsDto.dptoId });
+      }
+
+      if (pageOptionsDto.criteriaId) {
+        queryBuilder.andWhere("criteria.id = :criteria", { criteria: pageOptionsDto.criteriaId });
+      }
+
+      if (pageOptionsDto.categoryId) {
+        queryBuilder.andWhere("contribution.category = :category", { category: pageOptionsDto.categoryId });
+      }
+
+      if (pageOptionsDto.createAt) {
+        queryBuilder.andWhere("contribution.createAt > :createAt", { createAt: pageOptionsDto.createAt });
+      }
+
+      const itemCount = await queryBuilder.getCount();
+      const { entities } = await queryBuilder.getRawAndEntities();
+      const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+      return new PageDto(entities, pageMetaDto);
+    } catch (error) {
+      console.log(error);
+      throw new error();
+    }
+  }
+
+  async findMyContribution(
+    pageOptionsDto: PageOptionsContributionDto,
+    user: UserActiveInterface,
+  ): Promise<PageDto<Contribution>> {
+    const queryBuilder = await this.contributionReposiroty.createQueryBuilder("contribution");
 
     queryBuilder.leftJoinAndSelect("contribution.files", "files");
     queryBuilder.leftJoinAndSelect("contribution.user", "user");
@@ -102,6 +150,7 @@ export class ContributionsService {
     queryBuilder.leftJoinAndSelect("category.criteria", "criteria");
 
     queryBuilder
+      .where("user.id = :user", { user: user.id })
       .orderBy("contribution.createAt", pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
@@ -125,56 +174,6 @@ export class ContributionsService {
     if (pageOptionsDto.createAt) {
       queryBuilder.andWhere("contribution.createAt > :createAt", { createAt: pageOptionsDto.createAt });
     }
-
-    const itemCount = await queryBuilder.getCount();
-    const { entities } = await queryBuilder.getRawAndEntities();
-    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
-
-    return new PageDto(entities, pageMetaDto);
-    } catch (error) {
-      console.log(error)
-      throw new error
-    }
-
-    
-  }
-
-  async findMyContribution(pageOptionsDto: PageOptionsContributionDto, user: UserActiveInterface): Promise<PageDto<Contribution>> {
-    const queryBuilder = await this.contributionReposiroty.createQueryBuilder("contribution");
-
-    queryBuilder.leftJoinAndSelect("contribution.files", "files");
-    queryBuilder.leftJoinAndSelect("contribution.user", "user");
-    queryBuilder.leftJoinAndSelect("contribution.category", "category");
-    queryBuilder.leftJoinAndSelect("user.department", "department");
-    queryBuilder.leftJoinAndSelect("category.indicator", "indicator");
-    queryBuilder.leftJoinAndSelect("category.criteria", "criteria");
-
-    queryBuilder
-      .where("user.id = :user", { user: user.id})
-      .orderBy("contribution.createAt", pageOptionsDto.order)
-      .skip(pageOptionsDto.skip)
-      .take(pageOptionsDto.take);
-
-      if (pageOptionsDto.indicatorId) {
-        queryBuilder.andWhere("indicator.id = :indicator", { indicator: pageOptionsDto.indicatorId });
-      }
-  
-      if (pageOptionsDto.dptoId) {
-        queryBuilder.andWhere("user.department.id = :department", { department: pageOptionsDto.dptoId });
-      }
-  
-      if (pageOptionsDto.criteriaId) {
-        queryBuilder.andWhere("criteria.id = :criteria", { criteria: pageOptionsDto.criteriaId });
-      }
-  
-      if (pageOptionsDto.categoryId) {
-        queryBuilder.andWhere("contribution.category = :category", { category: pageOptionsDto.categoryId });
-      }
-  
-      if (pageOptionsDto.createAt) {
-        queryBuilder.andWhere("contribution.createAt > :createAt", { createAt: pageOptionsDto.createAt });
-      }
-  
 
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();

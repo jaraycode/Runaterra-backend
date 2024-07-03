@@ -1,17 +1,23 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Category } from "@src/core/categories/entities/category.entity";
+import { CategoriesService } from "@src/core/categories/services/categories.service";
 import { AlignmentType, HeadingLevel, ImageRun, Paragraph, TextRun } from "docx";
+import { Repository } from "typeorm/repository/Repository";
+import { Criteria } from "../../entities/criteria.entity";
 
 @Injectable()
 export class RenderContributions {
   constructor() {}
 
-  render() {
+  render(criteria: Criteria) {
     let paragraphArray = [];
 
-    for (var i = 1; i < 2; i++) {
+    console.log(criteria);
+    for (var i = 1; i < criteria.categories.contribution.length; i++) {
       paragraphArray.push(
         new Paragraph({
-          text: "Departamento #" + i,
+          text: "Departamento #" + i + ":" + criteria.categories.contribution[i].user.department.name,
           heading: HeadingLevel.HEADING_2,
           alignment: AlignmentType.LEFT,
         }),
@@ -26,7 +32,7 @@ export class RenderContributions {
         new Paragraph({
           children: [
             new TextRun({
-              text: "Descripción del aporte",
+              text: criteria.categories.contribution[i].description,
               bold: false,
               italics: true,
             }),

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { AlignmentType, Document, HeadingLevel, ImageRun, Packer, Paragraph, TextRun } from "docx";
 import { RenderHeader } from "./render-header";
 import { RenderContributions } from "./render-contribution";
+import { Criteria } from "../../entities/criteria.entity";
 
 @Injectable()
 export class ExportDocxAction {
@@ -10,12 +11,12 @@ export class ExportDocxAction {
     private renderContributions: RenderContributions,
   ) {}
 
-  async execute(criteriaId: number): Promise<Buffer> {
+  async execute(criteria: Criteria): Promise<Buffer> {
     const doc = new Document({
       sections: [
         {
           properties: {},
-          children: [...this.renderHeader.render(), ...this.renderContributions.render()],
+          children: [...this.renderHeader.render(criteria), ...this.renderContributions.render(criteria)],
         },
       ],
     });
