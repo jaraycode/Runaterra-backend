@@ -33,7 +33,6 @@ export class CreateFileDto {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ])
-  @MaxFileSize(419430400) // 400 MB
   file: FileData;
 
   contribution: Contribution;
