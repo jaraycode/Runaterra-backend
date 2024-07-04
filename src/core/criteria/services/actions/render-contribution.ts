@@ -40,7 +40,7 @@ export class RenderContributions {
       departments.forEach((department) => {
         paragraphArray.push(
           new Paragraph({
-            text: `Departamento ${[department]}`,
+            text: `Departamento ${[department.name]}`,
             heading: HeadingLevel.HEADING_2,
             alignment: AlignmentType.LEFT,
           }),
