@@ -1,0 +1,18 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsOptional, IsUUID, ValidateNested } from "class-validator";
+import { ContributionSettings } from "../entities/contributionSettings.entity";
+import { CreateContributionSettingsDto } from "./contributionSettings.dto";
+import { Type } from "class-transformer";
+
+export class UpdateSettingDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsUUID()
+  key: string;
+
+  @ApiProperty({ type: CreateContributionSettingsDto, required: true })
+  @IsOptional()
+  @Type(() => CreateContributionSettingsDto)
+  @ValidateNested()
+  contributionSettings: ContributionSettings;
+}
