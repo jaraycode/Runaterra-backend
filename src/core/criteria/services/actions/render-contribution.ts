@@ -9,16 +9,16 @@ export class RenderContributions {
   render(criteria: Criteria) {
     let paragraphArray = [];
 
-    for (var i = 1; i < criteria.categories.contribution.length; i++) {
+    for (var i = 0; i < criteria.categories.contribution.length; i++) {
       paragraphArray.push(
         new Paragraph({
-          text: "Departamento #" + i + ":" + criteria.categories.contribution[i].user.department.name,
+          text: `Departamento #${i + 1}:` + criteria.categories.contribution[i].user.department.name,
           heading: HeadingLevel.HEADING_2,
           alignment: AlignmentType.LEFT,
         }),
 
         new Paragraph({
-          text: "Aporte #" + i,
+          text: `Aporte #${i + 1}:`,
           heading: HeadingLevel.HEADING_3,
           alignment: AlignmentType.LEFT,
           style: "IntenseQuote",
