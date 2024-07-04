@@ -5,11 +5,6 @@ import { CreateContributionSettingsDto } from "./contributionSettings.dto";
 import { Type } from "class-transformer";
 
 export class UpdateSettingDto {
-  @ApiProperty()
-  @IsOptional()
-  @IsUUID()
-  key: string;
-
   @ApiProperty({ type: CreateContributionSettingsDto, required: true })
   @IsOptional()
   @Type(() => CreateContributionSettingsDto)

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsDate, IsNotEmpty } from "class-validator";
+import { IsBoolean, IsDate, IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateContributionSettingsDto {
   @ApiProperty()
@@ -25,22 +25,22 @@ export class CreateContributionSettingsDto {
 
 export class UpdateContributionSettingsDto {
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsDate()
   initDate?: Date;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsDate()
   endDate?: Date;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   getNotificationForContribution?: boolean;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   recordatory?: boolean;
 }

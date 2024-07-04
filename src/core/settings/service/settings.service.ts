@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateSettingDto } from "../dto/create-setting.dto";
 import { UpdateSettingDto } from "../dto/update-setting.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ContributionSettings } from "../entities/contributionSettings.entity";
 import { Equal, Repository } from "typeorm";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { User } from "@src/core/users/entities/user.entity";
 import { Setting } from "../entities/setting.entity";
+import { isAfter } from "@formkit/tempo";
 
 @Injectable()
 export class SettingsService {
@@ -25,24 +25,68 @@ export class SettingsService {
     if (!activeUser) {
       throw new NotFoundException("No existe ese usuario");
     }
+    const { contributionSettings, ...data } = createSettingDto;
 
-    const settings = await this.settingsRepository.create(createSettingDto);
+    const { initDate, endDate, ...dataContributions } = contributionSettings;
+
+    if (this.verifyDates(initDate, endDate)) throw new BadRequestException("Begin date is after deadline");
+
+    const settings = await this.settingsRepository.create({
+      ...data,
+      contributionSettings: { ...dataContributions, initDate: initDate, endDate: endDate },
+    });
     await this.settingsRepository.save(settings);
   }
 
-  findAll() {
-    return `This action returns all settings`;
+  async findAll() {
+    return await this.settingsRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} setting`;
+  async findOne(id: string): Promise<Setting> {
+    const setting = await this.settingsRepository.findOne({ where: { key: Equal[id] } });
+
+    if (!setting) throw new NotFoundException("Settings not found");
+
+    return setting;
   }
 
-  update(id: number, updateSettingDto: UpdateSettingDto) {
-    return `This action updates a #${id} setting`;
+  async update(id: string, updateSettingDto: UpdateSettingDto, user: UserActiveInterface) {
+    const activeUser = await this.userRepository.findOne({
+      where: { id: Equal[user.id] },
+    });
+
+    if (!activeUser) {
+      throw new NotFoundException("No existe ese usuario");
+    }
+
+    const contributionSet = await this.findOne(id);
+
+    const { initDate, endDate } = updateSettingDto.contributionSettings;
+
+    if (this.verifyDates(initDate, endDate)) throw new BadRequestException("Begin date is after deadline");
+
+    const result = await this.settingsRepository
+      .createQueryBuilder()
+      .update(updateSettingDto)
+      .where("key = :id", { id })
+      .execute();
+
+    if (result.affected === 0) throw new NotFoundException("La actualización no se pudo realizar");
+
+    return await this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} setting`;
+  async remove(id: string) {
+    const contributionSet = await this.findOne(id);
+
+    const result = await this.settingsRepository.createQueryBuilder().softDelete().where("key = :id", { id }).execute();
+
+    if (result.affected === 0) throw new NotFoundException("La eliminación no se pudo realizar");
+
+    return;
+  }
+
+  verifyDates(initDate: Date, endDate: Date): boolean {
+    return isAfter(initDate, endDate);
   }
 }
