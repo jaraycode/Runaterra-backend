@@ -16,10 +16,10 @@ export class RenderContributions {
     const departments: DptoDetailed[] = [];
 
     contributions.forEach((contribution: Contribution) => {
-      const contributionId = contribution.user.department.id;
-      const dptoExists = departments.find((dpto) => dpto.id === contributionId);
+      const dptoContributionId = contribution.user.department.id;
+      const dptoExists = departments.find((dpto) => dpto.id === dptoContributionId);
 
-      if (dptoExists) {
+      if (!dptoExists) {
         departments.push({
           ...contribution.user.department,
           contributionsOnCriteria: [contribution],
