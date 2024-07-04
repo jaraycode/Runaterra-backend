@@ -16,6 +16,7 @@ import { ContributionsModule } from "./core/contributions/contributions.module";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static/dist/serve-static.module";
 import { FilesModule } from "./core/files/files.module";
+import { SettingsModule } from "./core/settings/settings.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { FilesModule } from "./core/files/files.module";
     CriteriaModule,
     ContributionsModule,
     FilesModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [
