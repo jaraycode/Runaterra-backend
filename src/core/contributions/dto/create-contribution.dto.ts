@@ -52,6 +52,5 @@ export class CreateContributionDto {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ])
-  @MaxFileSize(419430400) // 400 MB
   files: FileData[];
 }
