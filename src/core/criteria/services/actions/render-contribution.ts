@@ -12,18 +12,20 @@ interface DptoDetailed extends Dpto {
 export class RenderContributions {
   constructor() {}
 
-  private getProccessedDepartments(contributions: Contribution[]): Promise<Dpto[]> {
-    const departments = new Set();
+  private getProccessedDepartments(contributions: Contribution[]): DptoDetailed[] {
+    const departments: DptoDetailed[] = [];
 
-    contributions.forEach((contribution) => {
-      const contribution;
+    contributions.forEach((contribution: Contribution) => {
+      const contributionId = contribution.user.department.id;
+      const dptoExists = departments.find((dpto) => dpto.id === contributionId);
 
-      if (departments[departmentName]) {
-        departments.add({
+      if (dptoExists) {
+        departments.push({
           ...contribution.user.department,
           contributionsOnCriteria: [contribution],
         });
       } else {
+        dptoExists.contributionsOnCriteria.push(contribution);
       }
     });
 
@@ -44,60 +46,59 @@ export class RenderContributions {
           }),
         );
 
-        paragraphArray.push(
-          new Paragraph({
-            text: `Aporte #${i + 1}:`,
-            heading: HeadingLevel.HEADING_3,
-            alignment: AlignmentType.LEFT,
-            style: "IntenseQuote",
-          }),
+        for (const contribution of department.contributionsOnCriteria) {
+          // Aporte
+          paragraphArray.push(
+            new Paragraph({
+              text: `Aporte #${contribution.id}:`,
+              heading: HeadingLevel.HEADING_3,
+              alignment: AlignmentType.LEFT,
+              style: "IntenseQuote",
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: contribution.description,
+                  bold: false,
+                  italics: true,
+                }),
+              ],
+            }),
+          );
 
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: criteria.categories.contribution[i].description,
-                bold: false,
-                italics: true,
-              }),
-            ],
-          }),
+          // Fotos
+          paragraphArray.push(
+            new Paragraph({
+              text: "Fotos",
+              heading: HeadingLevel.HEADING_4,
+              alignment: AlignmentType.LEFT,
+              style: "IntenseQuote",
+            }),
 
-          new Paragraph({
-            text: "Fotos",
-            heading: HeadingLevel.HEADING_3,
-            alignment: AlignmentType.LEFT,
-            style: "IntenseQuote",
-          }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: "▢",
+                }),
+                new TextRun({
+                  text: "Descripción de la foto",
+                  bold: false,
+                  italics: true,
+                }),
+              ],
+            }),
+          );
 
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: "▢",
-              }),
-              new TextRun({
-                text: "Descripción de la foto",
-                bold: false,
-                italics: true,
-              }),
-            ],
-          }),
-
-          new Paragraph({
-            text: "Archivos",
-            heading: HeadingLevel.HEADING_3,
-            alignment: AlignmentType.LEFT,
-            style: "IntenseQuote",
-          }),
-        );
-      });
-
-      for (var i = 0; i < criteria.categories.contribution.length; i++) {
-        const departmentName = criteria.categories.contribution[i].user.department.name;
-
-        if (!processedDepartments.has(departmentName)) {
-          processedDepartments.add(departmentName);
-
-          criteria.categories.contribution[i].files.forEach((file) => {
+          // Archivos
+          paragraphArray.push(
+            new Paragraph({
+              text: "Archivos",
+              heading: HeadingLevel.HEADING_4,
+              alignment: AlignmentType.LEFT,
+              style: "IntenseQuote",
+            }),
+          );
+          contribution.files.forEach((file) => {
             paragraphArray.push(
               new Paragraph({
                 children: [
@@ -120,45 +121,47 @@ export class RenderContributions {
               }),
             );
           });
-        }
-        paragraphArray.push(
-          new Paragraph({
-            text: "Links",
-            heading: HeadingLevel.HEADING_3,
-            alignment: AlignmentType.LEFT,
-            style: "IntenseQuote",
-          }),
-        );
 
-        let links = criteria.categories.contribution[i].link;
-        if (!Array.isArray(links)) {
-          links = [links];
-        }
-
-        links.forEach((link) => {
+          // Links
           paragraphArray.push(
             new Paragraph({
-              children: [
-                new TextRun({
-                  text: link.URL,
-                  bold: false,
-                  style: "Hyperlink",
-                }),
-              ],
-            }),
-
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: link.description,
-                  bold: false,
-                  italics: true,
-                }),
-              ],
+              text: "Links",
+              heading: HeadingLevel.HEADING_4,
+              alignment: AlignmentType.LEFT,
+              style: "IntenseQuote",
             }),
           );
-        });
-      }
+
+          let links = contribution.link;
+          if (!Array.isArray(links)) {
+            links = [links];
+          }
+
+          links.forEach((link) => {
+            paragraphArray.push(
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: link.URL,
+                    bold: false,
+                    style: "Hyperlink",
+                  }),
+                ],
+              }),
+
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: link.description,
+                    bold: false,
+                    italics: true,
+                  }),
+                ],
+              }),
+            );
+          });
+        }
+      });
 
       return paragraphArray;
     } catch (error) {
