@@ -18,11 +18,12 @@ import { ActiveUser } from "@src/common/decorator/active-user.decorator";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { UserRole } from "@src/constants";
 import { Auth } from "../auth/decorators/auth.decorator";
-import { ApiCreatedResponse, ApiResponse } from "@nestjs/swagger";
+import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Setting } from "./entities/setting.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
 import * as express from "express";
 
+@ApiTags("settings")
 @Controller("settings")
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}

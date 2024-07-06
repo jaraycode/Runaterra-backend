@@ -7,11 +7,11 @@ export class ContributionSettings {
   id: number;
 
   @ApiProperty()
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamp" })
   initDate: Date;
 
   @ApiProperty()
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamp" })
   endDate: Date;
 
   @ApiProperty()

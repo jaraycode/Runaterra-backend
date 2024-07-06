@@ -29,7 +29,11 @@ export class SettingsService {
 
     const { initDate, endDate, ...dataContributions } = contributionSettings;
 
-    if (this.verifyDates(initDate, endDate)) throw new BadRequestException("Begin date is after deadline");
+    const initDateISO = new Date(initDate);
+    const endDateISO = new Date(endDate);
+
+    if (this.verifyDates(new Date(initDateISO.toISOString()), new Date(endDateISO.toISOString())))
+      throw new BadRequestException("Begin date is after deadline");
 
     const settings = await this.settingsRepository.create({
       ...data,
@@ -44,9 +48,6 @@ export class SettingsService {
 
   async findOne(id: string): Promise<Setting> {
     const setting = await this.settingsRepository.findOne({ where: { key: Equal[id] } });
-
-    if (!setting) throw new NotFoundException("Settings not found");
-
     return setting;
   }
 
@@ -61,9 +62,20 @@ export class SettingsService {
 
     const contributionSet = await this.findOne(id);
 
+    if (!contributionSet) throw new NotFoundException("Settings not found");
+
+    const today = new Date();
+
     const { initDate, endDate } = updateSettingDto.contributionSettings;
 
-    if (this.verifyDates(initDate, endDate)) throw new BadRequestException("Begin date is after deadline");
+    const initDateISO = new Date(initDate);
+    const endDateISO = new Date(endDate);
+
+    if (this.verifyDates(new Date(today.toISOString()), new Date(endDateISO.toISOString())))
+      throw new BadRequestException("Dates are before today's date");
+
+    if (this.verifyDates(new Date(initDateISO.toISOString()), new Date(endDateISO.toISOString())))
+      throw new BadRequestException("Begin date is after deadline");
 
     const result = await this.settingsRepository
       .createQueryBuilder()
@@ -78,6 +90,8 @@ export class SettingsService {
 
   async remove(id: string) {
     const contributionSet = await this.findOne(id);
+
+    if (!contributionSet) throw new NotFoundException("Settings not found");
 
     const result = await this.settingsRepository.createQueryBuilder().softDelete().where("key = :id", { id }).execute();
 
