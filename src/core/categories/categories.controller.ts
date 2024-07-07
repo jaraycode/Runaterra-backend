@@ -35,8 +35,7 @@ export class CategoriesController {
   @ApiException(() => BadRequestException, {
     description: "Required atributes were missing",
   })
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
-    console.log(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
     return await this.categoriesService.create(createCategoryDto);
   }
 

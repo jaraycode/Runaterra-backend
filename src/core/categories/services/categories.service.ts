@@ -30,10 +30,15 @@ export class CategoriesService {
         where: {
           id: In(createCategoryDto.criteriaID),
         },
+        relations: ["categories"],
       });
 
       if (criteria.length !== createCategoryDto.criteriaID.length) {
         throw new BadRequestException("Alguno de los criterios ingresados no existe");
+      }
+
+      for (let c of criteria) {
+        if (c.categories) throw new BadRequestException("Algún criterio ya posee categoria asociada");
       }
 
       const newCategory = await this.categoryRepository.create({
@@ -45,7 +50,7 @@ export class CategoriesService {
       await this.categoryRepository.save(newCategory);
       return newCategory;
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException(error);
     }
   }
 
