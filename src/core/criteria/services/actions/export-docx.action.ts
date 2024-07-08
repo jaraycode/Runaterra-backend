@@ -1,44 +1,27 @@
 import { Injectable } from "@nestjs/common";
-import * as fs from "fs";
-import { Document, Packer, Paragraph, TextRun } from "docx";
+import { AlignmentType, Document, HeadingLevel, ImageRun, Packer, Paragraph, TextRun } from "docx";
+import { RenderHeader } from "./render-header";
+import { RenderContributions } from "./render-contribution";
+import { Criteria } from "../../entities/criteria.entity";
 
 @Injectable()
 export class ExportDocxAction {
-  constructor() {}
+  constructor(
+    private renderHeader: RenderHeader,
+    private renderContributions: RenderContributions,
+  ) {}
 
-  async execute(criteriaId: number): Promise<Buffer> {
+  async execute(criteria: Criteria): Promise<Buffer> {
     const doc = new Document({
-        sections: [
-            {
-                properties: {},
-                children: [
-                    new Paragraph({
-                        children: [
-                            new TextRun("Hello World"),
-                            new TextRun({
-                                text: "Foo Bar",
-                                bold: true,
-                            }),
-                            new TextRun({
-                                text: "\tGithub is the best",
-                                bold: true,
-                            }),
-                        ],
-                    }),
-                ],
-            },
-        ],
+      sections: [
+        {
+          properties: {},
+          children: [...this.renderHeader.render(criteria), ...this.renderContributions.render(criteria)],
+        },
+      ],
     });
 
     const buffer = await Packer.toBuffer(doc);
     return buffer;
-
-    // Used to export the file into a .docx file
-    /*Packer.toBuffer(doc).then((buffer) => {
-        fs.writeFileSync(`criterio-greenie-panel-${criteriaId}.docx`, buffer);
-    });*/
   }
 }
-
-
-

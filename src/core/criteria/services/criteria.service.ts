@@ -11,20 +11,22 @@ import { PageDto } from "@src/common/dto/page.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { PageOptionsCriteriaDto } from "../dto/pageOptionsCriteria.dto";
 import { ExportDocxAction } from "./actions/export-docx.action";
-
+import { Category } from "@src/core/categories/entities/category.entity";
 
 @Injectable()
 export class CriteriaService {
   constructor(
     @InjectRepository(Criteria)
+    @InjectRepository(Category)
     private readonly criteriaRepository: Repository<Criteria>,
     private readonly indicatorService: IndicatorsService,
     private readonly exportDocxAction: ExportDocxAction,
   ) {}
 
   async exportDocx(id: number): Promise<Buffer> {
-    // No hago absolutamente nada :)
-    return await this.exportDocxAction.execute(id);
+    const criteria = await this.findOne(id);
+
+    return await this.exportDocxAction.execute(criteria);
   }
 
   async create(createCriteriaDto: CreateCriteriaDto): Promise<Criteria> {
@@ -65,6 +67,11 @@ export class CriteriaService {
   async findOne(id: number): Promise<Criteria> {
     const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
     queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
+    queryBuilder.leftJoinAndSelect("criteria.categories", "categories");
+    queryBuilder.leftJoinAndSelect("categories.contribution", "contribution");
+    queryBuilder.leftJoinAndSelect("contribution.files", "files");
+    queryBuilder.leftJoinAndSelect("contribution.user", "user");
+    queryBuilder.leftJoinAndSelect("user.department", "department");
     queryBuilder.where("criteria.id = :id", { id: id });
     return queryBuilder.getOne();
   }
