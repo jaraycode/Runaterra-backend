@@ -103,4 +103,15 @@ export class SettingsService {
   verifyDates(initDate: Date, endDate: Date): boolean {
     return isAfter(initDate, endDate);
   }
+
+  async blockContributions(): Promise<boolean> {
+    const setting = await this.settingsRepository.find({ order: { contributionSettings: { endDate: "DESC" } } });
+
+    if (!setting) throw new NotFoundException("No existe ninguna configuración");
+    for (let s of setting) {
+      const today = new Date();
+      console.log(this.verifyDates(new Date(today.toISOString()), new Date(s.contributionSettings.endDate)));
+      return this.verifyDates(new Date(today.toISOString()), new Date(s.contributionSettings.endDate));
+    }
+  }
 }

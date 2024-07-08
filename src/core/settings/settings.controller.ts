@@ -56,6 +56,12 @@ export class SettingsController {
     return this.settingsService.findAll();
   }
 
+  @Get("blockContributions")
+  @HttpCode(HttpStatus.OK)
+  async blockContributions() {
+    return await this.settingsService.blockContributions();
+  }
+
   @Get(":id")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
@@ -71,7 +77,7 @@ export class SettingsController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: 200,
-    description: "Response of indicator deletion",
+    description: "Response of settings deletion",
   })
   @ApiException(() => NotFoundException, {
     description: "Contribution Settings not found",
