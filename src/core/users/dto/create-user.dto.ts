@@ -43,9 +43,6 @@ export class CreateUserDto {
   @IsString()
   @MinLength(8)
   @MaxLength(20)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: "contraseña muy débil",
-  })
   password: string;
 
   @ApiProperty({ example: UserRole.DPTO })
