@@ -7,7 +7,7 @@ export class CreateDptoDto {
   @IsDefined()
   @IsString()
   @MinLength(3)
-  @MaxLength(30)
+  @MaxLength(100)
   name: string;
 
   @ApiProperty({ type: ["number"], required: true })
