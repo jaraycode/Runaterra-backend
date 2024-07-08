@@ -50,7 +50,6 @@ export class AuthService {
 
     const newUser = await this.usersService.create({
       ...createUserDto,
-      role: UserRole.DPTO,
     });
 
     return newUser;
