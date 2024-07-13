@@ -26,6 +26,10 @@ export const envData = {
   DATABASE_NAME: process.env.DATABASE_NAME,
   SECRET: process.env.JWT_SECRET,
   BACKEND_URL: process.env.BACKEND_URL,
+  EMAIL_HOST: process.env.EMAIL_HOST,
+  EMAIL_PORT: process.env.EMAIL_PORT,
+  EMAIL_USERNAME: process.env.EMAIL_USERNAME,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
 };
 
 export default registerAs("typeorm", () => config);
