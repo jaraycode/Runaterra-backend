@@ -26,10 +26,15 @@ export class ContributionsService {
     private readonly categoryRepository: Repository<Category>,
     private readonly settingService: SettingsService,
   ) {}
-  async create(createContributionDto: CreateContributionDto, user: UserActiveInterface): Promise<Contribution> {
+  async create(createContributionDto: CreateContributionDto, user: UserActiveInterface) {
     const today = new Date();
     const settingsContribution = await this.settingService.findAll();
-    if (!settingsContribution) {
+    if (
+      !settingsContribution ||
+      settingsContribution === undefined ||
+      settingsContribution.length === 0 ||
+      settingsContribution === null
+    ) {
       throw new BadRequestException("Configuraciones inexistentes");
     }
 
@@ -103,7 +108,7 @@ export class ContributionsService {
 
     await this.userRepository.save(activeUser);
 
-    return contribution;
+    return await this.findOneByUUID(contribution.uuid);
   }
 
   async findAll(pageOptionsDto: PageOptionsContributionDto): Promise<PageDto<Contribution>> {
@@ -210,11 +215,7 @@ export class ContributionsService {
     });
   }
 
-  async update(
-    uuid: string,
-    updateContributionDto: UpdateContributionDto,
-    user: UserActiveInterface,
-  ): Promise<Contribution> {
+  async update(uuid: string, updateContributionDto: UpdateContributionDto, user: UserActiveInterface) {
     const today = new Date();
     const settingsContribution = await this.settingService.findAll();
     if (!settingsContribution) {
@@ -279,18 +280,22 @@ export class ContributionsService {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");
     }
 
-    const unifiedFiles = files.map((fileItem, index) => {
-      return {
-        name: file[index].name,
-        description: file[index].description,
-        file: fileItem,
-        contribution: contributionByUUID,
-      };
-    });
+    if (files && file) {
+      const unifiedFiles = files.map((fileItem, index) => {
+        return {
+          name: file[index].name,
+          description: file[index].description,
+          file: fileItem,
+          contribution: contributionByUUID,
+        };
+      });
 
-    await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
+      await Promise.all(contributionByUUID.files.map((fileItem) => this.filesService.remove(fileItem.id)));
 
-    return contributionByUUID;
+      await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
+    }
+
+    return await this.findOneByUUID(uuid);
   }
 
   async remove(id: number): Promise<void> {

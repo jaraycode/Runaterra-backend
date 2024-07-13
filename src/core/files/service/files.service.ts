@@ -22,7 +22,7 @@ export class FilesService {
     newFile.description = description;
     newFile.path = envData.BACKEND_URL + "public/" + file.fileNameFull;
     newFile.size = file.fileSize;
-    newFile.type = file.fileExtension;
+    newFile.type = file.mimetype;
     newFile.contribution = contribution;
 
     file.save();
