@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateContributionDto } from "../dto/create-contribution.dto";
 import { UpdateContributionDto } from "../dto/update-contribution.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -12,6 +12,7 @@ import { Category } from "@src/core/categories/entities/category.entity";
 import { User } from "@src/core/users/entities/user.entity";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { Link } from "../entities/link.entity";
+import { SettingsService } from "@src/core/settings/service/settings.service";
 
 @Injectable()
 export class ContributionsService {
@@ -23,8 +24,24 @@ export class ContributionsService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly settingService: SettingsService,
   ) {}
   async create(createContributionDto: CreateContributionDto, user: UserActiveInterface): Promise<Contribution> {
+    const today = new Date();
+    const settingsContribution = await this.settingService.findAll();
+    if (!settingsContribution) {
+      throw new BadRequestException("Configuraciones inexistentes");
+    }
+
+    if (
+      this.settingService.verifyDates(
+        new Date(today.toISOString()),
+        new Date(settingsContribution[0].contributionSettings.endDate),
+      )
+    ) {
+      throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
+    }
+
     let { files, file, categoryId, indicatorID, ...data } = createContributionDto;
 
     const activeUser = await this.userRepository.findOne({
@@ -187,17 +204,66 @@ export class ContributionsService {
   }
 
   async findOneByUUID(uuid: string) {
-    return await this.contributionReposiroty.findOne({ where: { uuid }, relations: ["files"] });
+    return await this.contributionReposiroty.findOne({
+      where: { uuid },
+      relations: ["files", "category", "category.indicator"],
+    });
   }
 
-  async update(uuid: string, updateContributionDto: UpdateContributionDto): Promise<Contribution> {
+  async update(
+    uuid: string,
+    updateContributionDto: UpdateContributionDto,
+    user: UserActiveInterface,
+  ): Promise<Contribution> {
+    const today = new Date();
+    const settingsContribution = await this.settingService.findAll();
+    if (!settingsContribution) {
+      throw new BadRequestException("Configuraciones inexistentes");
+    }
+
+    if (
+      this.settingService.verifyDates(
+        new Date(today.toISOString()),
+        new Date(settingsContribution[0].contributionSettings.endDate),
+      )
+    ) {
+      throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
+    }
+
+    const activeUser = await this.userRepository.findOne({
+      where: { id: Equal(user.id) },
+      relations: ["contributions"],
+    });
+
+    if (!activeUser) {
+      throw new NotFoundException("No existe ese usuario");
+    }
+
     const contributionByUUID = await this.findOneByUUID(uuid);
 
     if (!contributionByUUID) {
       throw new NotFoundException("No existe esa contribución");
     }
     // ? Idea, VERIFICAR QUE LINKS Y ARCHIVOS TENGA LA MISMA CANTIDAD DE DATOS Y AGREGAR LOS QUE ESTÉN NUEVOS Y QUITAR LOS QUE NO APARECEN EN LOS ÚLTIMOS DATOS ENVIADOS
-    const { file, files, link, ...rest } = updateContributionDto;
+    let { file, files, link, ...rest } = updateContributionDto;
+
+    if (!files || !file) {
+      throw new NotFoundException("No se encontraron archivos");
+    }
+
+    if (files && !Array.isArray(files)) {
+      files = [files];
+    }
+
+    if (file && !Array.isArray(file)) {
+      file = [file];
+    }
+
+    if (files && file) {
+      if (files.length !== file.length) {
+        throw new Error("Los arreglos 'files' y 'file' deben tener la misma longitud");
+      }
+    }
 
     const links: Link[] = [];
 
@@ -213,7 +279,18 @@ export class ContributionsService {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");
     }
 
-    return await this.findOneByUUID(uuid);
+    const unifiedFiles = files.map((fileItem, index) => {
+      return {
+        name: file[index].name,
+        description: file[index].description,
+        file: fileItem,
+        contribution: contributionByUUID,
+      };
+    });
+
+    await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
+
+    return contributionByUUID;
   }
 
   async remove(id: number): Promise<void> {
