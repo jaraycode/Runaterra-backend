@@ -40,6 +40,7 @@ export class SettingsService {
       contributionSettings: { ...dataContributions, initDate: initDate, endDate: endDate },
     });
     await this.settingsRepository.save(settings);
+    return settings;
   }
 
   async findAll() {

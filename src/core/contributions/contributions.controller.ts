@@ -56,7 +56,7 @@ export class ContributionsController {
     }
     const { categoryId, indicatorID, ...data } = rest;
     const updateContributionDto: UpdateContributionDto = data;
-    return await this.contributionsService.update(uuid, updateContributionDto);
+    return await this.contributionsService.update(uuid, updateContributionDto, user);
   }
 
   @Get()
@@ -68,7 +68,10 @@ export class ContributionsController {
   @Auth(UserRole.DPTO)
   @Get("my-contribution")
   @HttpCode(HttpStatus.OK)
-  async findMyContribution(@Query() pageOptionsDto: PageOptionsContributionDto, @ActiveUser() user: UserActiveInterface) {
+  async findMyContribution(
+    @Query() pageOptionsDto: PageOptionsContributionDto,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
     return await this.contributionsService.findMyContribution(pageOptionsDto, user);
   }
 
@@ -81,34 +84,6 @@ export class ContributionsController {
   })
   findOne(@Param("id") id: string) {
     return this.contributionsService.findOne(+id);
-  }
-
-  @Patch(":id")
-  @HttpCode(HttpStatus.OK)
-  @ApiResponse({
-    status: 200,
-    description: "Response of user update",
-    type: ResponseUpdateContribution,
-  })
-  @ApiException(() => NotFoundException, {
-    description: "Contribution not found",
-  })
-  async update(
-    @Param("uuid") uuid: string,
-    @Body() updateContributionDto: UpdateContributionDto,
-    @Res() res: express.Response,
-  ) {
-    try {
-      const contribution = await this.contributionsService.update(uuid, updateContributionDto);
-      return res.status(HttpStatus.OK).json({
-        message: "Contribución actualizado con exito",
-        data: contribution,
-      });
-    } catch (error) {
-      return res.status(error.status).json({
-        message: error.message,
-      });
-    }
   }
 
   @Delete(":id")

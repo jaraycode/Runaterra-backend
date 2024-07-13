@@ -6,9 +6,10 @@ import { Contribution } from "./entities/contribution.entity";
 import { FilesModule } from "../files/files.module";
 import { Category } from "../categories/entities/category.entity";
 import { User } from "../users/entities/user.entity";
+import { SettingsModule } from "../settings/settings.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Contribution, Category, User]), FilesModule],
+  imports: [TypeOrmModule.forFeature([Contribution, Category, User]), FilesModule, SettingsModule],
   controllers: [ContributionsController],
   providers: [ContributionsService],
 })
