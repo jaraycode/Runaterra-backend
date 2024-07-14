@@ -8,6 +8,12 @@ export class UpdateCriteriaDto {
   @IsString()
   name: string;
 
+  @ApiProperty({ example: "Infrastructure", required: true })
+  @IsOptional()
+  @IsDefined()
+  @IsString()
+  englishName: string;
+
   @ApiProperty({ required: true })
   @IsOptional()
   @IsDefined()

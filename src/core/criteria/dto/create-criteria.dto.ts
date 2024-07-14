@@ -8,6 +8,13 @@ export class CreateCriteriaDto {
   @IsString()
   name: string;
 
+  @ApiProperty({ example: "Infrastructure", required: true })
+  @IsNotEmpty()
+  @IsDefined()
+  @IsString()
+  @MinLength(3)
+  englishName: string;
+
   @ApiProperty({ required: true })
   @IsNotEmpty()
   @IsDefined()

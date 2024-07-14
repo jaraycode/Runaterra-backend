@@ -23,6 +23,10 @@ export class Indicator {
 
   @ApiProperty()
   @Column({ nullable: false })
+  englishName: string;
+
+  @ApiProperty()
+  @Column({ nullable: false })
   index: number;
 
   @ApiProperty()
