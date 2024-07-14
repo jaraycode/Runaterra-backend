@@ -21,7 +21,7 @@ export class CreateContributionDto {
   @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
   @IsOptional()
   @Type(() => CreateLinkDto)
-  link: Link[];
+  link: CreateLinkDto[];
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
   @IsNotEmpty()

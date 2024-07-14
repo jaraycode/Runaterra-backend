@@ -45,18 +45,23 @@ export class ContributionsController {
   @ApiException(() => BadRequestException, {
     description: "Required atributes were missing",
   })
-  async create(@Body() createContributionDto: CreateContributionDto, @ActiveUser() user: UserActiveInterface) {
-    createContributionDto.link = handleContributionDtoField(createContributionDto.link);
-    createContributionDto.file = handleContributionDtoField(createContributionDto.file);
-    const { uuid, ...rest } = createContributionDto;
+  async create(
+    @Body() contributionDto: CreateContributionDto | UpdateContributionDto,
+    @ActiveUser() user: UserActiveInterface,
+  ) {
+    console.log("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<asdasdasd");
+    throw new BadRequestException("Required atributes were missing");
+    contributionDto.link = handleContributionDtoField(contributionDto.link);
+    contributionDto.file = handleContributionDtoField(contributionDto.file);
 
-    const idempotency = await this.contributionsService.findOneByUUID(uuid);
-    if (!idempotency) {
-      return await this.contributionsService.create(createContributionDto, user);
+    const contributionAlreadyCreated = await this.contributionsService.findOneByUUID(contributionDto?.uuid);
+    if (!contributionAlreadyCreated) {
+      const _createContributionDto = contributionDto as CreateContributionDto;
+      return await this.contributionsService.create(_createContributionDto, user);
     }
-    const { categoryId, indicatorID, ...data } = rest;
-    const updateContributionDto: UpdateContributionDto = data;
-    return await this.contributionsService.update(uuid, updateContributionDto, user);
+
+    const _updateContributionDto = contributionDto as UpdateContributionDto;
+    return await this.contributionsService.update(contributionDto.uuid, _updateContributionDto, user);
   }
 
   @Get()

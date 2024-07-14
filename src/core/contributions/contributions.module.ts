@@ -7,10 +7,12 @@ import { FilesModule } from "../files/files.module";
 import { Category } from "../categories/entities/category.entity";
 import { User } from "../users/entities/user.entity";
 import { SettingsModule } from "../settings/settings.module";
+import { GetContributionAction } from "./services/get-contribution.action";
+import { PutContributionAction } from "./services/put-contribution.action";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Contribution, Category, User]), FilesModule, SettingsModule],
   controllers: [ContributionsController],
-  providers: [ContributionsService],
+  providers: [ContributionsService, GetContributionAction, PutContributionAction],
 })
 export class ContributionsModule {}
