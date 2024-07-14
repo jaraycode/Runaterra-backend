@@ -9,6 +9,7 @@ import { PageDto } from "@src/common/dto/page.dto";
 import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 import { DptosService } from "@src/core/dptos/services/dptos.service";
+import { Dpto } from "@src/core/dptos/entities/dpto.entity";
 
 @Injectable()
 export class UsersService {
@@ -77,12 +78,23 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
+    let departament: Dpto;
 
     if (!user) {
       throw new NotFoundException("Usuario no encontrado");
     }
 
-    const result = await this.userRepository.update(id, updateUserDto);
+    if (updateUserDto.department) {
+      departament = await this.dptoService.findOne(updateUserDto.department);
+
+      if (!departament) {
+        throw new NotFoundException("El departamento no existe");
+      }
+    }
+
+    const { department, ...data } = updateUserDto;
+
+    const result = await this.userRepository.update(id, data);
 
     if (result.affected === 0) {
       throw new NotFoundException("La actualización del usuario no se pudo realizar");

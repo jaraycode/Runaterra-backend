@@ -11,6 +11,8 @@ import {
   MaxLength,
   Validate,
   IsEnum,
+  IsNumber,
+  IsNumberString,
 } from "class-validator";
 
 export class UpdateUserDto {
@@ -37,4 +39,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsDateString()
   birthdate: string;
+
+  @ApiProperty()
+  @IsNumberString()
+  @IsOptional()
+  department: number;
 }
