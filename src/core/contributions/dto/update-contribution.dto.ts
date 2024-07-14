@@ -1,12 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { CreateLinkDto } from "./link.dto";
 import { Link } from "../entities/link.entity";
 import { Type } from "class-transformer";
 import { CreateFileDto } from "@src/core/files/dto/create-file.dto";
 import { ApiFile } from "@src/common/decorator/fileDecorator";
 import { FileData, HasMimeType, IsFileData, MaxFileSize, MimeType } from "nestjs-formdata-interceptor";
+import { UpdateFileDto } from "@src/core/files/dto/update-file.dto";
 export class UpdateContributionDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsUUID()
+  uuid: string;
+
   @ApiProperty()
   @IsOptional()
   @IsString()
@@ -14,14 +20,22 @@ export class UpdateContributionDto {
 
   @ApiProperty({ type: CreateLinkDto, required: true })
   @IsOptional()
-  @Type(() => Link)
+  @Type(() => CreateLinkDto)
   @ValidateNested()
-  link: Link[];
+  link: CreateLinkDto[];
 
-  @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
+  @ApiProperty({ type: UpdateFileDto, isArray: true, required: true })
   @IsOptional()
-  @Type(() => CreateFileDto)
-  file: CreateFileDto[];
+  @Type(() => UpdateFileDto)
+  file: UpdateFileDto[];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  categoryId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  indicatorID: number;
 
   @ApiFile({ isArray: true })
   @IsOptional()
@@ -42,9 +56,4 @@ export class UpdateContributionDto {
   ])
   @MaxFileSize(419430400) // 400 MB
   files: FileData[];
-
-  @ApiProperty()
-  @IsOptional()
-  @IsArray()
-  filesId: number[];
 }

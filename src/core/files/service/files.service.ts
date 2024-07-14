@@ -1,12 +1,13 @@
 import { BadRequestException, HttpStatus, Injectable } from "@nestjs/common";
-import { CreateFileDto } from "../dto/create-file.dto";
-import { UpdateFileDto } from "../dto/update-file.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Files } from "../entities/file.entity";
-import { Repository } from "typeorm";
+import { Repository, Equal } from "typeorm";
 import { envData } from "@src/config/typeorm";
 import { deleteFile } from "@src/utils/fileManager";
 import * as path from "path";
+import { PutFileFormattedDto } from "../dto/put-file-formatted-dto";
+import { Contribution } from "@src/core/contributions/entities/contribution.entity";
+
 @Injectable()
 export class FilesService {
   constructor(
@@ -14,20 +15,32 @@ export class FilesService {
     private readonly filesRepository: Repository<Files>,
   ) {}
 
-  async create(createFileDto: CreateFileDto) {
-    const { name, description, file, contribution } = createFileDto;
+  async createOrUpdate(createFileDto: PutFileFormattedDto, contribution: Contribution): Promise<Files> {
+    let fileToModify = new Files();
 
-    const newFile = new Files();
-    newFile.name = name;
-    newFile.description = description;
-    newFile.path = envData.BACKEND_URL + "public/" + file.fileNameFull;
-    newFile.size = file.fileSize;
-    newFile.type = file.mimetype;
-    newFile.contribution = contribution;
+    //console.log("createFileDto", createFileDto);
+    if (!!createFileDto.id) {
+      const fileExists = await this.findOne(createFileDto.id);
+      if (fileExists) {
+        fileToModify = fileExists;
+      }
+    }
 
-    file.save();
+    const { name, description } = createFileDto;
 
-    return await this.filesRepository.save(newFile);
+    fileToModify.name = name;
+    fileToModify.description = description;
+
+    if (createFileDto.file) {
+      fileToModify.path = envData.BACKEND_URL + "public/" + createFileDto.file.fileNameFull;
+      fileToModify.size = createFileDto.file.fileSize;
+      fileToModify.type = createFileDto.file.mimetype;
+      await createFileDto.file.save();
+    }
+
+    fileToModify.contribution = contribution;
+
+    return await this.filesRepository.save(fileToModify);
   }
 
   async findAll() {
@@ -37,6 +50,16 @@ export class FilesService {
   async findOne(id: number) {
     return await this.filesRepository.findOne({
       where: { id },
+    });
+  }
+
+  async getFilesFromContribution(contribution: Contribution): Promise<Files[]> {
+    return await this.filesRepository.find({
+      where: {
+        contribution: {
+          id: Equal(contribution.id),
+        },
+      },
     });
   }
 

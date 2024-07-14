@@ -16,18 +16,20 @@ import { CreateFileDto } from "./dto/create-file.dto";
 import { UpdateFileDto } from "./dto/update-file.dto";
 import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
+import { PutFileFormattedDto } from "./dto/put-file-formatted-dto";
 
 @ApiTags("files")
 @Controller("files")
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
+  /*
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiConsumes("multipart/form-data")
-  async create(@Body() createFileDto: CreateFileDto) {
-    return await this.filesService.create(createFileDto);
-  }
+  async create(@Body() createFileDto: PutFileFormattedDto) {
+    return await this.filesService.createOrUpdate(createFileDto);
+  }*/
 
   @Get()
   @HttpCode(HttpStatus.OK)

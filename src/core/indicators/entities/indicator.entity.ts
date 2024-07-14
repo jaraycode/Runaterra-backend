@@ -22,7 +22,7 @@ export class Indicator {
   name: string;
 
   @ApiProperty()
-  @Column({ nullable: false })
+  @Column({ nullable: true, default: "" })
   englishName: string;
 
   @ApiProperty()

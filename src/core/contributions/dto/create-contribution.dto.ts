@@ -21,7 +21,7 @@ export class CreateContributionDto {
   @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
   @IsOptional()
   @Type(() => CreateLinkDto)
-  link: Link[];
+  link: CreateLinkDto[];
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
   @IsNotEmpty()
@@ -53,9 +53,4 @@ export class CreateContributionDto {
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ])
   files: FileData[];
-
-  @ApiProperty()
-  @IsOptional()
-  @IsArray()
-  filesId: number[];
 }
