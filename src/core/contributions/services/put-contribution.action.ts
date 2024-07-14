@@ -11,6 +11,10 @@ import { SettingsService } from "@src/core/settings/service/settings.service";
 import { GetContributionAction } from "./get-contribution.action";
 import { UpdateContributionDto } from "../dto/update-contribution.dto";
 import { Link } from "../entities/link.entity";
+import { CreateLinkDto } from "../dto/link.dto";
+import { Setting } from "@src/core/settings/entities/setting.entity";
+import { PutFormattedContributionDto } from "../dto/put-formatted-contribution.dto";
+import { Indicator } from "@src/core/indicators/entities/indicator.entity";
 
 @Injectable()
 export class PutContributionAction {
@@ -20,15 +24,15 @@ export class PutContributionAction {
     private readonly filesService: FilesService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Indicator)
+    private readonly indicatorRepository: Repository<Indicator>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     private readonly settingService: SettingsService,
     private readonly getContributionAction: GetContributionAction,
   ) {}
 
-  async create(createContributionDto: CreateContributionDto, user: UserActiveInterface) {
-    //throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
-    const today = new Date();
+  private async getSettingsOrThrowWheNotExists(): Promise<Setting[]> {
     const settingsContribution = await this.settingService.findAll();
     if (
       !settingsContribution ||
@@ -39,6 +43,12 @@ export class PutContributionAction {
       throw new BadRequestException("Configuraciones inexistentes");
     }
 
+    return settingsContribution;
+  }
+
+  private async throwWhenDateLimitReachedForSubmitContribution(): Promise<void> {
+    const today = new Date();
+    const settingsContribution = await this.getSettingsOrThrowWheNotExists();
     if (
       this.settingService.verifyDates(
         new Date(today.toISOString()),
@@ -47,9 +57,9 @@ export class PutContributionAction {
     ) {
       throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
     }
+  }
 
-    let { files, file, categoryId, indicatorID, ...data } = createContributionDto;
-
+  private async getActiveUserOrThrow(user: UserActiveInterface): Promise<User> {
     const activeUser = await this.userRepository.findOne({
       where: { id: Equal(user.id) },
       relations: ["contributions"],
@@ -59,117 +69,88 @@ export class PutContributionAction {
       throw new NotFoundException("No existe ese usuario");
     }
 
+    return activeUser;
+  }
+
+  private async getCategoryOrThrow(categoryId: number): Promise<Category> {
     const category = await this.categoryRepository.findOne({
       where: { id: Equal(categoryId) },
       relations: ["contribution"],
     });
-
     if (!category) {
       throw new NotFoundException("No existe esa categoría");
     }
 
-    if (!files || !file) {
-      throw new NotFoundException("No se encontraron archivos");
-    }
+    return category;
+  }
 
-    if (files && !Array.isArray(files)) {
-      files = [files];
-    }
-    if (file && !Array.isArray(file)) {
-      file = [file];
-    }
-
-    if (files && file) {
-      if (files.length !== file.length) {
-        throw new Error("Los arreglos 'files' y 'file' deben tener la misma longitud");
-      }
-    }
-
-    const newcontribution = await this.contributionReposiroty.create(data);
-    await this.contributionReposiroty.save(newcontribution);
-
-    const contribution = await this.contributionReposiroty.findOne({ where: { id: Equal(newcontribution.id) } });
-
-    const unifiedFiles = files.map((fileItem, index) => {
-      return {
-        name: file[index].name,
-        description: file[index].description,
-        file: fileItem,
-        contribution: contribution,
-      };
+  // Unsued
+  public async getIndicatorOrThrow(indicatorID: number): Promise<Indicator> {
+    const indicator = await this.indicatorRepository.findOne({
+      where: { id: Equal(indicatorID) },
     });
 
-    await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
+    if (!indicator) {
+      throw new NotFoundException("No existe ese indicador");
+    }
 
-    category.contribution.push(contribution);
+    return indicator;
+  }
 
-    activeUser.contributions.push(contribution);
+  private findOneContribution(id: number): Promise<Contribution> {
+    return this.contributionReposiroty.findOne({
+      where: { id: Equal(id) },
+    });
+  }
 
-    await this.categoryRepository.save(category);
+  async create(createContributionDto: PutFormattedContributionDto, user: UserActiveInterface) {
+    //throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
+    console.log("Create", createContributionDto);
+    this.throwWhenDateLimitReachedForSubmitContribution();
 
-    await this.userRepository.save(activeUser);
+    let { files, categoryId, indicatorID, ...data } = createContributionDto;
+
+    const activeUser = await this.getActiveUserOrThrow(user);
+
+    const category = await this.getCategoryOrThrow(createContributionDto.categoryId);
+
+    // Creamos la contribucion
+    const newContribution = this.contributionReposiroty.create({
+      ...data,
+    });
+    // Relacionamos la contribucion a la category
+    newContribution.category = category;
+    newContribution.user = activeUser;
+    // Guardamos
+    await this.contributionReposiroty.save(newContribution);
+
+    // Obtenemos la contribucion recien creada
+    const contribution = await this.findOneContribution(newContribution.id);
+
+    // Guardamos los archivos
+    await Promise.all(files.map((fileItem) => this.filesService.createOrUpdate(fileItem, contribution)));
 
     return await this.getContributionAction.findOneByUUID(contribution.uuid);
   }
 
-  async update(uuid: string, updateContributionDto: UpdateContributionDto, user: UserActiveInterface) {
-    const today = new Date();
-    const settingsContribution = await this.settingService.findAll();
-    if (!settingsContribution) {
-      throw new BadRequestException("Configuraciones inexistentes");
-    }
-
-    if (
-      this.settingService.verifyDates(
-        new Date(today.toISOString()),
-        new Date(settingsContribution[0].contributionSettings.endDate),
-      )
-    ) {
-      throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
-    }
-
-    const activeUser = await this.userRepository.findOne({
-      where: { id: Equal(user.id) },
-      relations: ["contributions"],
-    });
-
-    if (!activeUser) {
-      throw new NotFoundException("No existe ese usuario");
-    }
+  async update(uuid: string, updateContributionDto: PutFormattedContributionDto, user: UserActiveInterface) {
+    this.throwWhenDateLimitReachedForSubmitContribution();
 
     const contributionByUUID = await this.getContributionAction.findOneByUUID(uuid);
 
     if (!contributionByUUID) {
       throw new NotFoundException("No existe esa contribución");
     }
-    // ? Idea, VERIFICAR QUE LINKS Y ARCHIVOS TENGA LA MISMA CANTIDAD DE DATOS Y AGREGAR LOS QUE ESTÉN NUEVOS Y QUITAR LOS QUE NO APARECEN EN LOS ÚLTIMOS DATOS ENVIADOS
-    let { file, files, link, ...rest } = updateContributionDto;
 
-    if (!files || !file) {
-      throw new NotFoundException("No se encontraron archivos");
-    }
+    let { files, categoryId, indicatorID, ...data } = updateContributionDto;
 
-    if (files && !Array.isArray(files)) {
-      files = [files];
-    }
-
-    if (file && !Array.isArray(file)) {
-      file = [file];
-    }
-
-    if (files && file) {
-      if (files.length !== file.length) {
-        throw new Error("Los arreglos 'files' y 'file' deben tener la misma longitud");
-      }
-    }
-
-    const links: Link[] = [];
-
-    for (let l of link) links.push(l);
+    contributionByUUID.category = await this.getCategoryOrThrow(categoryId);
+    contributionByUUID.user = await this.getActiveUserOrThrow(user);
+    await this.contributionReposiroty.save(contributionByUUID);
 
     const result = await this.contributionReposiroty
       .createQueryBuilder()
-      .update({ ...rest, link: links })
+      .update({ ...data })
       .where("uuid = :uuid", { uuid })
       .execute();
 
@@ -177,20 +158,27 @@ export class PutContributionAction {
       throw new NotFoundException("La actualización de la contribución no se pudo realizar");
     }
 
-    if (files && file) {
-      const unifiedFiles = files.map((fileItem, index) => {
-        return {
-          name: file[index].name,
-          description: file[index].description,
-          file: fileItem,
-          contribution: contributionByUUID,
-        };
-      });
+    const filesExisting = await this.filesService.getFilesFromContribution(contributionByUUID);
 
-      await Promise.all(contributionByUUID.files.map((fileItem) => this.filesService.remove(fileItem.id)));
-
-      await Promise.all(unifiedFiles.map((fileItem) => this.filesService.create(fileItem)));
-    }
+    console.log("input", files);
+    console.log("existing", filesExisting);
+    const filesUploadedsExistingInFiles = files.filter((file) => {
+      return filesExisting.some((fileExisting) => fileExisting.id === file.id);
+    });
+    const filesToDelete = filesExisting.filter((fileExisting) => {
+      return !files.some((file) => file.id === fileExisting.id);
+    });
+    const filesToCreate = files.filter((file) => {
+      return !filesExisting.some((fileExisting) => fileExisting.id === file.id);
+    });
+    console.log("to create", [...filesToCreate, ...filesUploadedsExistingInFiles]);
+    console.log("to dlete", filesToDelete);
+    await Promise.all(
+      [...filesToCreate, ...filesUploadedsExistingInFiles].map((fileItem) =>
+        this.filesService.createOrUpdate(fileItem, contributionByUUID),
+      ),
+    );
+    await Promise.all(filesToDelete.map((fileItem) => this.filesService.remove(fileItem.id)));
 
     return await this.getContributionAction.findOneByUUID(uuid);
   }

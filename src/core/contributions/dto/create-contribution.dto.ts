@@ -53,9 +53,4 @@ export class CreateContributionDto {
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ])
   files: FileData[];
-
-  @ApiProperty()
-  @IsOptional()
-  @IsArray()
-  filesId: number[];
 }

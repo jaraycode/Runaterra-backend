@@ -1,11 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ApiFile } from "@src/common/decorator/fileDecorator";
-import { CreateContributionDto } from "@src/core/contributions/dto/create-contribution.dto";
 import { Contribution } from "@src/core/contributions/entities/contribution.entity";
-import { IsArray, IsNotEmpty } from "class-validator";
-import { FileData, HasMimeType, IsFileData, MaxFileSize, MimeType } from "nestjs-formdata-interceptor";
+import { IsEmpty, IsOptional } from "class-validator";
+import { FileData, HasMimeType, IsFileData, MimeType } from "nestjs-formdata-interceptor";
 
-export class CreateFileDto {
+export class PutFileFormattedDto {
+  // id
+  @ApiProperty({
+    example: "UUID",
+  })
+  @IsOptional()
+  id?: number;
+
   @ApiProperty({
     example: "Documento importante",
   })
@@ -17,8 +23,9 @@ export class CreateFileDto {
   })
   description: string;
 
-  /*@ApiFile()
+  @ApiFile()
   @IsFileData()
+  @IsOptional()
   @HasMimeType([
     MimeType["video/mp4"],
     "image/png",
@@ -33,7 +40,5 @@ export class CreateFileDto {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ])
-  file: FileData;*/
-
-  //contribution: Contribution;
+  file?: FileData;
 }

@@ -12,19 +12,18 @@ import { User } from "@src/core/users/entities/user.entity";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { PutContributionAction } from "./put-contribution.action";
 import { GetContributionAction } from "./get-contribution.action";
+import { PutFormattedContributionDto } from "../dto/put-formatted-contribution.dto";
 
 @Injectable()
 export class ContributionsService {
   constructor(
     @InjectRepository(Contribution)
     private readonly contributionReposiroty: Repository<Contribution>,
-    @InjectRepository(User)
-    @InjectRepository(Category)
     private readonly getContributionAction: GetContributionAction,
     private readonly putContributionAction: PutContributionAction,
   ) {}
 
-  async create(createContributionDto: CreateContributionDto, user: UserActiveInterface) {
+  async create(createContributionDto: PutFormattedContributionDto, user: UserActiveInterface) {
     return await this.putContributionAction.create(createContributionDto, user);
   }
 
@@ -129,7 +128,7 @@ export class ContributionsService {
     return await this.getContributionAction.findOneByUUID(uuid);
   }
 
-  async update(uuid: string, updateContributionDto: UpdateContributionDto, user: UserActiveInterface) {
+  async update(uuid: string, updateContributionDto: PutFormattedContributionDto, user: UserActiveInterface) {
     return await this.putContributionAction.update(uuid, updateContributionDto, user);
   }
 

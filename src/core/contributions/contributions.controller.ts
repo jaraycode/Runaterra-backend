@@ -3,13 +3,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
   HttpStatus,
   BadRequestException,
-  NotFoundException,
   Res,
   Req,
   Query,
@@ -20,14 +18,14 @@ import { UpdateContributionDto } from "./dto/update-contribution.dto";
 import { ApiConsumes, ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Contribution } from "./entities/contribution.entity";
 import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator";
-import { ResponseUpdateContribution } from "./response/interceptorResponse";
 import * as express from "express";
 import { PageOptionsContributionDto } from "./dto/pageOptionsContribution.dto";
 import { ActiveUser } from "@src/common/decorator/active-user.decorator";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { Auth } from "../auth/decorators/auth.decorator";
 import { UserRole } from "@src/constants";
-import { handleContributionDtoField } from "@src/utils/transformer-multipart-formdata";
+import { getFormattedPutContributionDto } from "./get-formatted-put-contribution-dto";
+
 @ApiTags("contributions")
 @Controller("contributions")
 export class ContributionsController {
@@ -49,19 +47,14 @@ export class ContributionsController {
     @Body() contributionDto: CreateContributionDto | UpdateContributionDto,
     @ActiveUser() user: UserActiveInterface,
   ) {
-    console.log("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<asdasdasd");
-    throw new BadRequestException("Required atributes were missing");
-    contributionDto.link = handleContributionDtoField(contributionDto.link);
-    contributionDto.file = handleContributionDtoField(contributionDto.file);
+    const formattedDto = getFormattedPutContributionDto(contributionDto);
 
-    const contributionAlreadyCreated = await this.contributionsService.findOneByUUID(contributionDto?.uuid);
+    const contributionAlreadyCreated = await this.contributionsService.findOneByUUID(formattedDto?.uuid);
     if (!contributionAlreadyCreated) {
-      const _createContributionDto = contributionDto as CreateContributionDto;
-      return await this.contributionsService.create(_createContributionDto, user);
+      return await this.contributionsService.create(formattedDto, user);
     }
 
-    const _updateContributionDto = contributionDto as UpdateContributionDto;
-    return await this.contributionsService.update(contributionDto.uuid, _updateContributionDto, user);
+    return await this.contributionsService.update(contributionDto.uuid, formattedDto, user);
   }
 
   @Get()

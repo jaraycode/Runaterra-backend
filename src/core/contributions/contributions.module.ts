@@ -9,9 +9,10 @@ import { User } from "../users/entities/user.entity";
 import { SettingsModule } from "../settings/settings.module";
 import { GetContributionAction } from "./services/get-contribution.action";
 import { PutContributionAction } from "./services/put-contribution.action";
+import { Indicator } from "../indicators/entities/indicator.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Contribution, Category, User]), FilesModule, SettingsModule],
+  imports: [TypeOrmModule.forFeature([Contribution, Category, User, Indicator]), FilesModule, SettingsModule],
   controllers: [ContributionsController],
   providers: [ContributionsService, GetContributionAction, PutContributionAction],
 })
