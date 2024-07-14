@@ -42,4 +42,9 @@ export class UpdateContributionDto {
   ])
   @MaxFileSize(419430400) // 400 MB
   files: FileData[];
+
+  @ApiProperty()
+  @IsOptional()
+  @IsArray()
+  filesId: number[];
 }
