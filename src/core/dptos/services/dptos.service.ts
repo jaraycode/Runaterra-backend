@@ -73,7 +73,7 @@ export class DptosService {
 
     const matrix = [];
     for (let d of department) {
-      const filteredCategories = await this.potencialCategories(allCategories, d);
+      let filteredCategories = await this.potencialCategories(allCategories, d);
       matrix.push({
         departmentName: d.name,
         categories: filteredCategories,
@@ -84,17 +84,20 @@ export class DptosService {
   }
 
   async potencialCategories(categories: Category[], dpto: Dpto) {
-    const userContributions = await this.contributionRepository.find({
-      where: { user: dpto.user },
-      relations: ["category"],
-    });
+    const userContributions = await this.contributionRepository
+      .createQueryBuilder("contribution")
+      .leftJoinAndSelect("contribution.user", "user")
+      .leftJoinAndSelect("contribution.category", "category")
+      .where("user.id = :user", { user: dpto.user[0].id })
+      .execute();
     let potencial = [];
     for (let c of categories) {
       let quantity = 0;
       let potencially = false;
-      userContributions.every((element) => {
-        if (element.category.id === c.id) quantity++;
-      });
+
+      for (let uc of userContributions) {
+        if (uc.category_id === c.id) quantity = quantity + 1;
+      }
       for (let cp of dpto.categories) {
         if (cp.id === c.id) potencially = true;
       }

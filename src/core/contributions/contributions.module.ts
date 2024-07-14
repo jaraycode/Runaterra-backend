@@ -15,5 +15,6 @@ import { Indicator } from "../indicators/entities/indicator.entity";
   imports: [TypeOrmModule.forFeature([Contribution, Category, User, Indicator]), FilesModule, SettingsModule],
   controllers: [ContributionsController],
   providers: [ContributionsService, GetContributionAction, PutContributionAction],
+  exports: [ContributionsService],
 })
 export class ContributionsModule {}
