@@ -14,5 +14,6 @@ import { PutContributionAction } from "./services/put-contribution.action";
   imports: [TypeOrmModule.forFeature([Contribution, Category, User]), FilesModule, SettingsModule],
   controllers: [ContributionsController],
   providers: [ContributionsService, GetContributionAction, PutContributionAction],
+  exports: [ContributionsService],
 })
 export class ContributionsModule {}
