@@ -74,6 +74,7 @@ export class DptosService {
     const matrix = [];
     for (let d of department) {
       let filteredCategories = await this.potencialCategories(allCategories, d);
+
       matrix.push({
         departmentName: d.name,
         categories: filteredCategories,
@@ -88,13 +89,14 @@ export class DptosService {
       .createQueryBuilder("contribution")
       .leftJoinAndSelect("contribution.user", "user")
       .leftJoinAndSelect("contribution.category", "category")
-      .where("user.id = :user", { user: dpto.user[0].id })
+      .leftJoinAndSelect("user.department", "department")
+      .where("department.id = :department", { department: dpto.id })
       .execute();
+
     let potencial = [];
     for (let c of categories) {
       let quantity = 0;
       let potencially = false;
-
       for (let uc of userContributions) {
         if (uc.category_id === c.id) quantity = quantity + 1;
       }
