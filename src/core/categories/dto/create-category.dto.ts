@@ -3,21 +3,21 @@ import { IsDefined, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from "cl
 
 export class CreateCategoryDto {
   @ApiProperty({ required: true })
-  @IsNotEmpty()
-  @IsDefined()
-  @IsString()
+  @IsNotEmpty({ message: "El nombre es obligatorio" })
+  @IsDefined({ message: "El nombre debe estar definido" })
+  @IsString({ message: "El nombre debe ser una cadena de texto" })
   name: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
+  @IsString({ message: "La descripción debe ser una cadena de texto" })
   description: string;
 
   @ApiProperty()
-  @IsInt()
+  @IsInt({ message: "El ID del indicador debe ser un número entero" })
   indicatorID: number;
 
   @ApiProperty({ type: ["number"] })
-  @IsNumber({}, { each: true })
+  @IsNumber({}, { each: true, message: "Cada ID de criterio debe ser un número" })
   criteriaID: number[];
 }

@@ -8,6 +8,8 @@ export class UpdateSettingDto {
   @ApiProperty({ type: CreateContributionSettingsDto, required: true })
   @IsOptional()
   @Type(() => CreateContributionSettingsDto)
-  @ValidateNested()
+  @ValidateNested({
+    message: "Las configuraciones de contribución son invalidas",
+  })
   contributionSettings: ContributionSettings;
 }

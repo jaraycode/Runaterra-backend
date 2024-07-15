@@ -17,31 +17,34 @@ import {
 
 export class UpdateUserDto {
   @ApiProperty({ example: "Emmanuel", required: true })
-  @IsDefined()
+  @IsDefined({ message: "El nombre es obligatorio" })
   @IsOptional()
-  @IsString()
-  @MinLength(4)
-  @MaxLength(30)
+  @IsString({ message: "El nombre debe ser una cadena de texto" })
+  @MinLength(4, { message: "El nombre debe tener al menos 4 caracteres" })
+  @MaxLength(30, { message: "El nombre no puede tener más de 30 caracteres" })
   name: string;
 
   @ApiProperty({ example: "admin@gmail.com", required: true })
-  @Validate(isUniqueDb, ["user", "email", "El correo ya existe"])
+  @Validate(isUniqueDb, ["user", "email", "El correo ya existe"], { message: "El correo ya existe" })
   @IsOptional()
-  @IsEmail()
+  @IsEmail({}, { message: "El correo debe ser un correo electrónico válido" })
   email: string;
 
   @ApiProperty({ example: UserRole.DPTO })
   @IsOptional()
-  @IsEnum(UserRole, { message: "Rol invalido" })
+  @IsEnum(UserRole, { message: "Rol inválido" })
   role: UserRole;
 
   @ApiProperty({ example: "2001-02-23" })
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: "La fecha de nacimiento debe ser una fecha válida" })
   birthdate: string;
 
-  @ApiProperty()
-  @IsNumberString()
+  @ApiProperty({
+    example: "1",
+    required: true,
+  })
+  @IsNumberString({}, { message: "El ID del departamento debe ser un número" })
   @IsOptional()
   department: number;
 }

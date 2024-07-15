@@ -6,13 +6,13 @@ import { PutFileFormattedDto } from "@src/core/files/dto/put-file-formatted-dto"
 
 export class PutFormattedContributionDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsUUID()
+  @IsNotEmpty({ message: "El UUID es obligatorio" })
+  @IsUUID("4", { message: "El UUID debe ser una cadena UUID válida" })
   uuid: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsString({ message: "La descripción debe ser una cadena de texto" })
   description: string;
 
   @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
@@ -21,11 +21,11 @@ export class PutFormattedContributionDto {
   link: CreateLinkDto[];
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El ID de la categoría es obligatorio" })
   categoryId: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El ID del indicador es obligatorio" })
   indicatorID: number;
 
   @ApiProperty({ type: PutFileFormattedDto, isArray: true, required: true })

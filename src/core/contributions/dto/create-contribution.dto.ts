@@ -9,13 +9,13 @@ import { FileData, HasMimeType, IsFileData, MaxFileSize, MimeType } from "nestjs
 
 export class CreateContributionDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsUUID()
+  @IsNotEmpty({ message: "El UUID es obligatorio" })
+  @IsUUID("4", { message: "El UUID debe ser una cadena UUID válida" })
   uuid: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsString({ message: "La descripción debe ser una cadena de texto" })
   description: string;
 
   @ApiProperty({ type: CreateLinkDto, isArray: true, required: true })
@@ -24,16 +24,16 @@ export class CreateContributionDto {
   link: CreateLinkDto[];
 
   @ApiProperty({ type: CreateFileDto, isArray: true, required: true })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El archivo es obligatorio" })
   @Type(() => CreateFileDto)
   file: CreateFileDto[];
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El ID de la categoría es obligatorio" })
   categoryId: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El ID del indicador es obligatorio" })
   indicatorID: number;
 
   @ApiFile({ isArray: true })

@@ -6,12 +6,12 @@ import { ContributionSettings } from "../entities/contributionSettings.entity";
 
 export class CreateSettingDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsUUID()
+  @IsNotEmpty({ message: "La clave es obligatoria" })
+  @IsUUID("4", { message: "La clave debe ser un UUID válido" })
   key: string;
 
   @ApiProperty({ type: CreateContributionSettingsDto, required: true })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "Las configuraciones de contribución son obligatorias" })
   @Type(() => CreateContributionSettingsDto)
   contributionSettings: ContributionSettings;
 }

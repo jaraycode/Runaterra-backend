@@ -9,13 +9,13 @@ import { FileData, HasMimeType, IsFileData, MaxFileSize, MimeType } from "nestjs
 import { UpdateFileDto } from "@src/core/files/dto/update-file.dto";
 export class UpdateContributionDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsUUID()
+  @IsNotEmpty({ message: "El UUID es obligatorio" })
+  @IsUUID("4", { message: "El UUID debe ser una cadena UUID válida" })
   uuid: string;
 
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsString({ message: "La descripción debe ser una cadena de texto" })
   description: string;
 
   @ApiProperty({ type: CreateLinkDto, required: true })
@@ -30,11 +30,11 @@ export class UpdateContributionDto {
   file: UpdateFileDto[];
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El ID de la categoría es obligatorio" })
   categoryId: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "El ID del indicador es obligatorio" })
   indicatorID: number;
 
   @ApiFile({ isArray: true })
