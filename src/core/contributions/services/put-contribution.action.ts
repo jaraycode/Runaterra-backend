@@ -133,12 +133,12 @@ export class PutContributionAction {
     const admins = await this.userRepository.find({
       where: { role: Equal(UserRole.ADMIN) },
     });
-    console.log("------------> 8");
+
     let uuidSetting = `81ed6231-5be6-4166-9118-d982038a2fc7`;
 
     const setting = await this.settingService.findOne(uuidSetting);
-    console.log("------------> 9");
-    if (setting.contributionSettings.getNotificationForContribution) {
+
+    if (setting?.contributionSettings?.getNotificationForContribution) {
       await Promise.all(
         admins.map(async (admin) => {
           await this.mailService.sendMail({
@@ -149,7 +149,7 @@ export class PutContributionAction {
         }),
       );
     }
-    console.log("------------> 11");
+
     return await this.getContributionAction.findOneByUUID(contribution.uuid);
   }
 
