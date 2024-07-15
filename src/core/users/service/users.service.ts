@@ -73,6 +73,7 @@ export class UsersService {
   async findOne(id: number): Promise<User> {
     return this.userRepository.findOne({
       where: { id },
+      relations: ["department"],
     });
   }
 
