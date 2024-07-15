@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AlignmentType, HeadingLevel, Paragraph, TextRun } from "docx";
+import { AlignmentType, HeadingLevel, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from "docx";
 import { Criteria } from "../../entities/criteria.entity";
 import { Contribution } from "@src/core/contributions/entities/contribution.entity";
 import { Dpto } from "@src/core/dptos/entities/dpto.entity";
@@ -7,6 +7,33 @@ import { Dpto } from "@src/core/dptos/entities/dpto.entity";
 interface DptoDetailed extends Dpto {
   contributionsOnCriteria: Contribution[];
 }
+
+// Ejemplo de uso
+const contributions: Contribution[] = [
+  {
+    indice: "1.1",
+    resumen: "Descripción del aporte #1",
+    fotos: [
+      { descripcion: "Foto 1", path: "path/to/foto1.jpg" },
+      { descripcion: "Foto 2", path: "path/to/foto2.jpg" },
+    ],
+    archivos: [
+      { nombre: "Archivo 1", link: "link/to/archivo1" },
+      { nombre: "Archivo 2", link: "link/to/archivo2" },
+    ],
+    links: [
+      { nombre: "Link 1", url: "http://link1.com" },
+      { nombre: "Link 2", url: "http://link2.com" },
+    ],
+  },
+  {
+    indice: "2",
+    resumen: "Descripción del aporte #2",
+    fotos: [],
+    archivos: [],
+    links: [],
+  },
+];
 
 @Injectable()
 export class RenderContributions {
@@ -41,7 +68,7 @@ export class RenderContributions {
         paragraphArray.push(
           new Paragraph({
             text: `Departamento ${[department.name]}`,
-            heading: HeadingLevel.HEADING_2,
+            heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.LEFT,
           }),
         );
@@ -51,9 +78,8 @@ export class RenderContributions {
           paragraphArray.push(
             new Paragraph({
               text: `Aporte #${contribution.id}:`,
-              heading: HeadingLevel.HEADING_3,
+              heading: HeadingLevel.HEADING_4,
               alignment: AlignmentType.LEFT,
-              style: "IntenseQuote",
             }),
             new Paragraph({
               children: [
@@ -70,9 +96,8 @@ export class RenderContributions {
           paragraphArray.push(
             new Paragraph({
               text: "Fotos",
-              heading: HeadingLevel.HEADING_4,
+              heading: HeadingLevel.HEADING_5,
               alignment: AlignmentType.LEFT,
-              style: "IntenseQuote",
             }),
 
             new Paragraph({
@@ -93,9 +118,8 @@ export class RenderContributions {
           paragraphArray.push(
             new Paragraph({
               text: "Archivos",
-              heading: HeadingLevel.HEADING_4,
+              heading: HeadingLevel.HEADING_5,
               alignment: AlignmentType.LEFT,
-              style: "IntenseQuote",
             }),
           );
           contribution.files.forEach((file) => {
@@ -126,9 +150,8 @@ export class RenderContributions {
           paragraphArray.push(
             new Paragraph({
               text: "Links",
-              heading: HeadingLevel.HEADING_4,
+              heading: HeadingLevel.HEADING_5,
               alignment: AlignmentType.LEFT,
-              style: "IntenseQuote",
             }),
           );
 
@@ -169,3 +192,83 @@ export class RenderContributions {
     }
   }
 }
+
+interface Contribution {
+  indice: string;
+  resumen: string;
+  fotos: { descripcion: string; path: string }[];
+  archivos: { nombre: string; link: string }[];
+  links: { nombre: string; url: string }[];
+}
+
+function generateDocument(contributions: Contribution[]) {
+  const tables = [];
+
+  contributions.forEach((contribution) => {
+    const table = new Table({
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph(`Aporte #${contribution.indice}`)],
+              width: { size: 100, type: WidthType.PERCENTAGE },
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph(contribution.resumen)],
+              width: { size: 100, type: WidthType.PERCENTAGE },
+            }),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph("Fotos")],
+              width: { size: 100, type: WidthType.PERCENTAGE },
+            }),
+          ],
+        }),
+        ...contribution.fotos.map(
+          (foto) =>
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph(foto.descripcion)],
+                  width: { size: 100, type: WidthType.PERCENTAGE },
+                }),
+              ],
+            }),
+        ),
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [
+                new Paragraph("Links"),
+                new Paragraph(contribution.links.map((link) => `- ${link.nombre} (${link.url})`).join("\n")),
+              ],
+              width: { size: 50, type: WidthType.PERCENTAGE },
+            }),
+            new TableCell({
+              children: [
+                new Paragraph("Archivos"),
+                new Paragraph(
+                  contribution.archivos.map((archivo) => `- ${archivo.nombre} (${archivo.link})`).join("\n"),
+                ),
+              ],
+              width: { size: 50, type: WidthType.PERCENTAGE },
+            }),
+          ],
+        }),
+      ],
+    });
+
+    tables.push(table);
+  });
+
+  return tables;
+}
+
+//generateDocument(contributions);
