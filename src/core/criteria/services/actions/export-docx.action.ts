@@ -2,7 +2,10 @@ import { Injectable } from "@nestjs/common";
 import {
   AlignmentType,
   Document,
+  Header,
   HeadingLevel,
+  HorizontalPositionAlign,
+  HorizontalPositionRelativeFrom,
   ImageRun,
   Packer,
   Paragraph,
@@ -11,6 +14,8 @@ import {
   TableRow,
   TextRun,
   UnderlineType,
+  VerticalPositionAlign,
+  VerticalPositionRelativeFrom,
   WidthType,
   convertInchesToTwip,
 } from "docx";
@@ -18,6 +23,7 @@ import { RenderHeader } from "./render-header";
 import { RenderContributions } from "./render-contribution";
 import { Criteria } from "../../entities/criteria.entity";
 import { COMPATIBILITY_GOOGLE_DOCS } from "./width-utils";
+import * as fs from "fs";
 
 @Injectable()
 export class ExportDocxAction {
@@ -28,6 +34,49 @@ export class ExportDocxAction {
 
   async execute(criteria: Criteria): Promise<Buffer> {
     const sizeCorrector = COMPATIBILITY_GOOGLE_DOCS ? 2 : 1;
+
+    const headerAllPages = new Header({
+      children: [
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: fs.readFileSync("./images/Ucab.png"),
+              transformation: {
+                width: 300,
+                height: 43,
+              },
+              floating: {
+                horizontalPosition: {
+                  relative: HorizontalPositionRelativeFrom.MARGIN,
+                  align: HorizontalPositionAlign.LEFT,
+                },
+                verticalPosition: {
+                  relative: VerticalPositionRelativeFrom.TOP_MARGIN,
+                  align: VerticalPositionAlign.BOTTOM,
+                },
+              },
+            }),
+            new ImageRun({
+              data: fs.readFileSync("./images/GM.png"),
+              transformation: {
+                width: 115,
+                height: 85,
+              },
+              floating: {
+                horizontalPosition: {
+                  relative: HorizontalPositionRelativeFrom.MARGIN,
+                  align: HorizontalPositionAlign.RIGHT,
+                },
+                verticalPosition: {
+                  relative: VerticalPositionRelativeFrom.TOP_MARGIN,
+                  align: VerticalPositionAlign.BOTTOM,
+                },
+              },
+            }),
+          ],
+        }),
+      ],
+    });
 
     const result = await this.renderContributions.render(criteria);
     const doc = new Document({
@@ -131,6 +180,9 @@ export class ExportDocxAction {
         {
           properties: {},
           children: [...this.renderHeader.render(criteria), ...result],
+          headers: {
+            default: headerAllPages,
+          },
         },
       ],
     });
