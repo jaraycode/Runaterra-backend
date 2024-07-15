@@ -1,39 +1,57 @@
 import { Injectable } from "@nestjs/common";
-import { AlignmentType, HeadingLevel, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from "docx";
+import {
+  AlignmentType,
+  HeadingLevel,
+  Paragraph,
+  ShadingType,
+  Table,
+  TableCell,
+  TableRow,
+  TextRun,
+  WidthType,
+} from "docx";
 import { Criteria } from "../../entities/criteria.entity";
 import { Contribution } from "@src/core/contributions/entities/contribution.entity";
 import { Dpto } from "@src/core/dptos/entities/dpto.entity";
+import { Files } from "@src/core/files/entities/file.entity";
+import { Link } from "@src/core/contributions/entities/link.entity";
+
+const COMPATIBILITY_GOOGLE_DOCS = true;
+
+function getCustomTableCellWidth(amount: number = 100) {
+  const percentageAmount = amount / 100;
+
+  if (COMPATIBILITY_GOOGLE_DOCS)
+    return {
+      width: {
+        size: 4505 * percentageAmount,
+        type: WidthType.DXA,
+      },
+    };
+
+  return {
+    width: {
+      size: 100 * percentageAmount,
+      type: WidthType.PERCENTAGE,
+    },
+  };
+}
+
+function getColumnWidthsTable() {
+  if (COMPATIBILITY_GOOGLE_DOCS) {
+    return { columnWidths: [4505, 4505] };
+  }
+  return {
+    width: {
+      size: 100,
+      type: WidthType.PERCENTAGE,
+    },
+  };
+}
 
 interface DptoDetailed extends Dpto {
   contributionsOnCriteria: Contribution[];
 }
-
-// Ejemplo de uso
-const contributions: ContributionR[] = [
-  {
-    indice: "1.1",
-    resumen: "Descripción del aporte #1",
-    fotos: [
-      { descripcion: "Foto 1", path: "path/to/foto1.jpg" },
-      { descripcion: "Foto 2", path: "path/to/foto2.jpg" },
-    ],
-    archivos: [
-      { nombre: "Archivo 1", link: "link/to/archivo1" },
-      { nombre: "Archivo 2", link: "link/to/archivo2" },
-    ],
-    links: [
-      { nombre: "Link 1", url: "http://link1.com" },
-      { nombre: "Link 2", url: "http://link2.com" },
-    ],
-  },
-  {
-    indice: "2",
-    resumen: "Descripción del aporte #2",
-    fotos: [],
-    archivos: [],
-    links: [],
-  },
-];
 
 @Injectable()
 export class RenderContributions {
@@ -73,192 +91,147 @@ export class RenderContributions {
           }),
         );
 
-        for (const contribution of department.contributionsOnCriteria) {
-          // Aporte
-          paragraphArray.push(
-            new Paragraph({
-              text: `Aporte #${contribution.id}:`,
-              heading: HeadingLevel.HEADING_4,
-              alignment: AlignmentType.LEFT,
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: contribution.description,
-                  bold: false,
-                  italics: true,
-                }),
-              ],
-            }),
-          );
-
-          // Fotos
-          paragraphArray.push(
-            new Paragraph({
-              text: "Fotos",
-              heading: HeadingLevel.HEADING_5,
-              alignment: AlignmentType.LEFT,
-            }),
-
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "▢",
-                }),
-                new TextRun({
-                  text: "Descripción de la foto",
-                  bold: false,
-                  italics: true,
-                }),
-              ],
-            }),
-          );
-
-          // Archivos
-          paragraphArray.push(
-            new Paragraph({
-              text: "Archivos",
-              heading: HeadingLevel.HEADING_5,
-              alignment: AlignmentType.LEFT,
-            }),
-          );
-          contribution.files.forEach((file) => {
-            paragraphArray.push(
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: file.path,
-                    bold: false,
-                    style: "Hyperlink",
-                  }),
-                ],
-              }),
-
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: file.description,
-                    bold: false,
-                    italics: true,
-                  }),
-                ],
-              }),
-            );
-          });
-
-          // Links
-          paragraphArray.push(
-            new Paragraph({
-              text: "Links",
-              heading: HeadingLevel.HEADING_5,
-              alignment: AlignmentType.LEFT,
-            }),
-          );
-
-          let links = contribution.link;
-          if (!Array.isArray(links)) {
-            links = [links];
-          }
-
-          links.forEach((link) => {
-            paragraphArray.push(
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: link.URL,
-                    bold: false,
-                    style: "Hyperlink",
-                  }),
-                ],
-              }),
-
-              new Paragraph({
-                children: [
-                  new TextRun({
-                    text: link.description,
-                    bold: false,
-                    italics: true,
-                  }),
-                ],
-              }),
-            );
-          });
-        }
+        paragraphArray.push(...generateTables(department.contributionsOnCriteria));
       });
 
-      return paragraphArray;
+      return [...paragraphArray];
     } catch (error) {
       console.log(error);
     }
   }
 }
 
-interface ContributionR {
-  indice: string;
-  resumen: string;
-  fotos: { descripcion: string; path: string }[];
-  archivos: { nombre: string; link: string }[];
-  links: { nombre: string; url: string }[];
-}
-
-function generateDocument(contributions: ContributionR[]) {
+function generateTables(contributions: Contribution[]): Table[] {
   const tables = [];
 
   contributions.forEach((contribution) => {
     const table = new Table({
+      ...getColumnWidthsTable(),
       rows: [
         new TableRow({
           children: [
             new TableCell({
-              children: [new Paragraph(`Aporte #${contribution.indice}`)],
-              width: { size: 100, type: WidthType.PERCENTAGE },
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph(contribution.resumen)],
-              width: { size: 100, type: WidthType.PERCENTAGE },
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [new Paragraph("Fotos")],
-              width: { size: 100, type: WidthType.PERCENTAGE },
-            }),
-          ],
-        }),
-        ...contribution.fotos.map(
-          (foto) =>
-            new TableRow({
+              columnSpan: 2,
               children: [
-                new TableCell({
-                  children: [new Paragraph(foto.descripcion)],
-                  width: { size: 100, type: WidthType.PERCENTAGE },
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `Aporte #${contribution.id}`,
+                      color: "FFFFFF", // Texto blanco
+                      bold: true, // Texto en negrita
+                    }),
+                  ],
+                  heading: HeadingLevel.HEADING_4,
+                  alignment: AlignmentType.CENTER,
                 }),
               ],
+              shading: {
+                type: ShadingType.CLEAR,
+                color: "00FF00", // Verde bonito
+                fill: "008040", // Verde bonito más opaco
+              },
+              ...getCustomTableCellWidth(100),
             }),
-        ),
+          ],
+        }),
+        new TableRow({
+          children: [
+            new TableCell({
+              columnSpan: 2,
+              children: [new Paragraph(contribution.description)],
+              ...getCustomTableCellWidth(100),
+            }),
+          ],
+        }),
+
+        new TableRow({
+          children: [
+            new TableCell({
+              columnSpan: 2,
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `Fotos`,
+                      color: "FFFFFF", // Texto blanco
+                      bold: true, // Texto en negrita
+                    }),
+                  ],
+                }),
+              ],
+              shading: {
+                type: ShadingType.CLEAR,
+                color: "00FF00", // Verde bonito
+                fill: "00B050", // Verde bonito
+              },
+              ...getCustomTableCellWidth(100),
+            }),
+          ],
+        }),
+        ...getPhotosMap(contribution.files),
+        new TableRow({
+          children: [
+            new TableCell({
+              columnSpan: 1,
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `Links`,
+                      color: "FFFFFF", // Texto blanco
+                      bold: true, // Texto en negrita
+                    }),
+                  ],
+                }),
+              ],
+              shading: {
+                type: ShadingType.CLEAR,
+                color: "00FF00", // Verde bonito
+                fill: "00B050", // Verde bonito
+              },
+              ...getCustomTableCellWidth(50),
+            }),
+            new TableCell({
+              columnSpan: 1,
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({
+                      text: `Archivos`,
+                      color: "FFFFFF", // Texto blanco
+                      bold: true, // Texto en negrita
+                    }),
+                  ],
+                }),
+              ],
+              shading: {
+                type: ShadingType.CLEAR,
+                color: "00FF00", // Verde bonito
+                fill: "00B050", // Verde bonito
+              },
+              ...getCustomTableCellWidth(50),
+            }),
+          ],
+        }),
         new TableRow({
           children: [
             new TableCell({
               children: [
-                new Paragraph("Links"),
-                new Paragraph(contribution.links.map((link) => `- ${link.nombre} (${link.url})`).join("\n")),
+                new Paragraph({
+                  children: getFlatMapLinks(contribution.link),
+                }),
               ],
-              width: { size: 50, type: WidthType.PERCENTAGE },
+              ...getCustomTableCellWidth(50),
+              columnSpan: 1,
             }),
             new TableCell({
               children: [
-                new Paragraph("Archivos"),
-                new Paragraph(
-                  contribution.archivos.map((archivo) => `- ${archivo.nombre} (${archivo.link})`).join("\n"),
-                ),
+                new Paragraph({
+                  children: getFlatMapFiles(contribution.files),
+                }),
               ],
-              width: { size: 50, type: WidthType.PERCENTAGE },
+              ...getCustomTableCellWidth(50),
+              columnSpan: 1,
             }),
           ],
         }),
@@ -271,4 +244,105 @@ function generateDocument(contributions: ContributionR[]) {
   return tables;
 }
 
-//generateDocument(contributions);
+function getPhotosMap(files: Files[]) {
+  if (!Array.isArray(files) || !files || !files.length)
+    return [
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [],
+            ...getCustomTableCellWidth(100),
+          }),
+        ],
+      }),
+    ];
+
+  // Divide el arreglo de files en varios arreglos de 2
+  const filesTwoPairs: Files[][] = files.reduce((resultArray, item, index) => {
+    const chunkIndex = Math.floor(index / 2);
+
+    if (!resultArray[chunkIndex]) {
+      resultArray[chunkIndex] = [];
+    }
+
+    resultArray[chunkIndex].push(item);
+
+    return resultArray;
+  }, []);
+
+  const photoRows = [];
+
+  filesTwoPairs.forEach((pair) => {
+    if (!pair.length) return;
+
+    const photoCells = [];
+    pair.forEach((photo) => {
+      photoCells.push(
+        new TableCell({
+          columnSpan: 1,
+          children: [new Paragraph(photo.description)],
+          ...getCustomTableCellWidth(50),
+        }),
+      );
+    });
+
+    // Si habia una sola foto, añade otro espacio vacio pa rellenar
+    if (photoCells.length <= 1) {
+      photoCells.push(
+        new TableCell({
+          columnSpan: 1,
+          children: [],
+          ...getCustomTableCellWidth(50),
+        }),
+      );
+    }
+
+    photoRows.push(
+      new TableRow({
+        children: photoCells,
+      }),
+    );
+  });
+
+  return photoRows;
+}
+
+function getFlatMapLinks(links: Link[]) {
+  if (!Array.isArray(links) || !links || !links.length) return [];
+
+  return links.flatMap((link) => {
+    return [
+      new TextRun({
+        text: `- ${link.description} (${link.URL})`,
+        break: 1,
+        style: "textWrap",
+      }),
+      new TextRun({
+        text: link.URL,
+        bold: false,
+        style: "Hyperlink",
+        break: 1,
+      }),
+    ];
+  });
+}
+
+function getFlatMapFiles(files: Files[]) {
+  if (!Array.isArray(files) || !files || !files.length) return [];
+
+  return files.flatMap((file) => {
+    return [
+      new TextRun({
+        text: `- ${file.description} (${file.path})`,
+        break: 1,
+        style: "textWrap",
+      }),
+      new TextRun({
+        text: file.path,
+        bold: false,
+        style: "Hyperlink",
+        break: 1,
+      }),
+    ];
+  });
+}

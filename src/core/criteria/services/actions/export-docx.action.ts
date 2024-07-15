@@ -6,8 +6,12 @@ import {
   ImageRun,
   Packer,
   Paragraph,
+  Table,
+  TableCell,
+  TableRow,
   TextRun,
   UnderlineType,
+  WidthType,
   convertInchesToTwip,
 } from "docx";
 import { RenderHeader } from "./render-header";
@@ -20,6 +24,50 @@ export class ExportDocxAction {
     private renderHeader: RenderHeader,
     private renderContributions: RenderContributions,
   ) {}
+
+  async executeOld(criteria: Criteria): Promise<Buffer> {
+    const doc = new Document({
+      sections: [
+        {
+          properties: {
+            page: {
+              margin: {
+                top: convertInchesToTwip(1),
+                right: convertInchesToTwip(1),
+                bottom: convertInchesToTwip(1),
+                left: convertInchesToTwip(1),
+              },
+            },
+          },
+          children: [
+            new Table({
+              width: {
+                size: 100,
+                type: WidthType.PERCENTAGE,
+              },
+              rows: [
+                new TableRow({
+                  children: [
+                    new TableCell({
+                      children: [new Paragraph("Cell 1")],
+                      width: { size: 50, type: WidthType.PERCENTAGE },
+                    }),
+                    new TableCell({
+                      children: [new Paragraph("Cell 2")],
+                      width: { size: 50, type: WidthType.PERCENTAGE },
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+
+    const buffer = await Packer.toBuffer(doc);
+    return buffer;
+  }
 
   async execute(criteria: Criteria): Promise<Buffer> {
     const doc = new Document({
@@ -108,7 +156,15 @@ export class ExportDocxAction {
             },
           },
         },
-        paragraphStyles: [],
+        paragraphStyles: [
+          {
+            id: "textWrap",
+            name: "Text Wrap",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
+          },
+        ],
         characterStyles: [],
       },
       sections: [

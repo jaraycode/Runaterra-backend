@@ -105,16 +105,16 @@ export class CriteriaController {
     }
   }
 
-  
   @Get("export-docx/:id")
-  async exportDocx(@Param("id")  id: string, @Res() res: express.Response) {
+  async exportDocx(@Param("id") id: string, @Res() res: express.Response) {
     try {
       const buffer = await this.criteriaService.exportDocx(+id);
 
       res.set({
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'Content-Disposition': 'attachment; filename=example.docx',
-        'Content-Length': buffer.length,
+        "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        //"Content-Type": "application/octet-stream",
+        "Content-Disposition": "attachment; filename=example.docx",
+        "Content-Length": buffer.length,
       });
 
       res.send(buffer);
