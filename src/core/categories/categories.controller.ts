@@ -11,6 +11,7 @@ import {
   HttpStatus,
   NotFoundException,
   Res,
+  Query,
 } from "@nestjs/common";
 import { CategoriesService } from "./services/categories.service";
 import { CreateCategoryDto } from "./dto/create-category.dto";
@@ -19,6 +20,7 @@ import { ApiException } from "@nanogiants/nestjs-swagger-api-exception-decorator
 import { Category } from "./entities/category.entity";
 import { ApiCreatedResponse, ApiResponse, ApiTags } from "@nestjs/swagger";
 import * as express from "express";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
 
 @ApiTags("categories")
 @Controller("categories")
@@ -43,6 +45,12 @@ export class CategoriesController {
   @HttpCode(HttpStatus.OK)
   async findAll() {
     return await this.categoriesService.findAll();
+  }
+
+  @Get("paginated")
+  @HttpCode(HttpStatus.OK)
+  async findAllPaginated(@Query() paginedOptions: PageOptionsDto) {
+    return await this.categoriesService.findAllPaginated(paginedOptions);
   }
 
   @Get(":id")

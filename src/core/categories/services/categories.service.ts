@@ -7,6 +7,9 @@ import { In, Repository } from "typeorm";
 import { IndicatorsService } from "@src/core/indicators/services/indicators.service";
 import { Indicator } from "@src/core/indicators/entities/indicator.entity";
 import { Criteria } from "@src/core/criteria/entities/criteria.entity";
+import { PageOptionsDto } from "@src/common/dto/pageOptions.dto";
+import { PageDto } from "@src/common/dto/page.dto";
+import { PageMetaDto } from "@src/common/dto/page.meta.dto";
 
 @Injectable()
 export class CategoriesService {
@@ -58,6 +61,24 @@ export class CategoriesService {
     return await this.categoryRepository.find({
       relations: ["indicator", "criteria"],
     });
+  }
+
+  async findAllPaginated(pageOptionsDto: PageOptionsDto): Promise<PageDto<Category>> {
+    const queryBuilder = this.categoryRepository.createQueryBuilder("category");
+
+    queryBuilder.leftJoinAndSelect("category.indicator", "indicator");
+    queryBuilder.leftJoinAndSelect("category.criteria", "criteria");
+
+    queryBuilder.orderBy("category.id", "DESC").skip(pageOptionsDto.skip).take(pageOptionsDto.take);
+
+    const [categories, count] = await queryBuilder.getManyAndCount();
+
+    const pageMetaDto = new PageMetaDto({
+      pageOptionsDto,
+      itemCount: count,
+    });
+
+    return new PageDto(categories, pageMetaDto);
   }
 
   async findOne(id: number): Promise<Category> {

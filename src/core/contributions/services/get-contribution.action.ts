@@ -11,7 +11,10 @@ export class GetContributionAction {
   ) {}
 
   async findOne(id: number): Promise<Contribution> {
-    return await this.contributionReposiroty.findOne({ where: { id }, relations: ["files"] });
+    return await this.contributionReposiroty.findOne({
+      where: { id },
+      relations: ["files", "category", "category.indicator"],
+    });
   }
 
   async findOneByUUID(uuid: string) {
