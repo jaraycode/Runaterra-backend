@@ -6,7 +6,8 @@ import { Equal, Repository } from "typeorm";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { User } from "@src/core/users/entities/user.entity";
 import { Setting } from "../entities/setting.entity";
-import { isAfter } from "@formkit/tempo";
+import { diffDays, isAfter } from "@formkit/tempo";
+import { uuid } from "uuidv4";
 
 @Injectable()
 export class SettingsService {
@@ -48,7 +49,7 @@ export class SettingsService {
   }
 
   async findOne(id: string): Promise<Setting> {
-    const setting = await this.settingsRepository.findOne({ where: { key: Equal[id] } });
+    const setting = await this.settingsRepository.findOne({ where: { key: Equal(id) } });
     return setting;
   }
 
@@ -103,6 +104,27 @@ export class SettingsService {
 
   verifyDates(initDate: Date, endDate: Date): boolean {
     return isAfter(initDate, endDate);
+  }
+
+  async daysRemaining(uuid = `81ed6231-5be6-4166-9118-d982038a2fc7`): Promise<number> {
+    const setting = await this.findOne(uuid);
+
+    if (!setting) throw new NotFoundException("No existe esta configuración");
+
+    const today = new Date().toISOString();
+    const endDate = new Date(setting.contributionSettings.endDate).toISOString();
+    return diffDays(endDate, today, "round");
+  }
+
+  async TotalDays(uuid = `81ed6231-5be6-4166-9118-d982038a2fc7`): Promise<number> {
+    const setting = await this.findOne(uuid);
+
+    if (!setting) throw new NotFoundException("No existe ninguna configuración");
+
+    const today = new Date(setting.contributionSettings.initDate).toISOString();
+    const endDate = new Date(setting.contributionSettings.endDate).toISOString();
+
+    return diffDays(endDate, today, "round");
   }
 
   async blockContributions(): Promise<boolean> {
