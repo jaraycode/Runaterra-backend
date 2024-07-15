@@ -55,7 +55,7 @@ export class RenderContributions {
       for (const department of departments) {
         paragraphArray.push(
           new Paragraph({
-            text: `Departamento ${[department.name]}`,
+            text: `Departament ${[department.name]}`,
             heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.LEFT,
           }),
@@ -94,7 +94,7 @@ export class RenderContributions {
                   new Paragraph({
                     children: [
                       new TextRun({
-                        text: `Aporte #${contribution.id}`,
+                        text: `Contribution #${contribution.id}`,
                         color: "FFFFFF", // Texto blanco
                         bold: true, // Texto en negrita
                       }),
@@ -130,7 +130,7 @@ export class RenderContributions {
                   new Paragraph({
                     children: [
                       new TextRun({
-                        text: `Fotos`,
+                        text: `Photos`,
                         color: "FFFFFF", // Texto blanco
                         bold: true, // Texto en negrita
                       }),
@@ -175,7 +175,7 @@ export class RenderContributions {
                   new Paragraph({
                     children: [
                       new TextRun({
-                        text: `Archivos`,
+                        text: `Files`,
                         color: "FFFFFF", // Texto blanco
                         bold: true, // Texto en negrita
                       }),

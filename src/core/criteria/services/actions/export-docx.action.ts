@@ -84,13 +84,13 @@ export class ExportDocxAction {
     const result = await this.renderContributions.render(criteria);
     const doc = new Document({
       creator: "GreenieMetric",
-      title: `Greenie Metric - Report #${criteria.indicator.index}.${criteria.index} ${criteria.englishName}`,
-      description: `Reporte del criterio #${criteria.index} ${criteria.name} del indicador #${criteria.indicator.index} ${criteria.indicator.name}`,
+      title: `Greenie Metric Report #${criteria.indicator.index}.${criteria.index} ${criteria.englishName}`,
+      description: `Report Criteria #${criteria.index} ${criteria.name} from indicator #${criteria.indicator.index} ${criteria.indicator.name}`,
       styles: {
         default: {
           heading1: {
             run: {
-              size: 18 * sizeCorrector,
+              size: 17 * sizeCorrector,
               bold: true,
               color: "008800",
             },
@@ -102,12 +102,8 @@ export class ExportDocxAction {
           },
           heading2: {
             run: {
-              size: 16 * sizeCorrector,
+              size: 15 * sizeCorrector,
               bold: true,
-              underline: {
-                type: UnderlineType.SINGLE,
-                color: "000000",
-              },
             },
             paragraph: {
               spacing: {
@@ -118,7 +114,7 @@ export class ExportDocxAction {
           },
           heading3: {
             run: {
-              size: 14 * sizeCorrector,
+              size: 13 * sizeCorrector,
               bold: true,
               color: "006600",
             },
