@@ -9,7 +9,7 @@ interface DptoDetailed extends Dpto {
 }
 
 // Ejemplo de uso
-const contributions: Contribution[] = [
+const contributions: ContributionR[] = [
   {
     indice: "1.1",
     resumen: "Descripción del aporte #1",
@@ -193,7 +193,7 @@ export class RenderContributions {
   }
 }
 
-interface Contribution {
+interface ContributionR {
   indice: string;
   resumen: string;
   fotos: { descripcion: string; path: string }[];
@@ -201,7 +201,7 @@ interface Contribution {
   links: { nombre: string; url: string }[];
 }
 
-function generateDocument(contributions: Contribution[]) {
+function generateDocument(contributions: ContributionR[]) {
   const tables = [];
 
   contributions.forEach((contribution) => {
