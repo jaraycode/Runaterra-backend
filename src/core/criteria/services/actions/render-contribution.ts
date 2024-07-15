@@ -15,39 +15,9 @@ import { Contribution } from "@src/core/contributions/entities/contribution.enti
 import { Dpto } from "@src/core/dptos/entities/dpto.entity";
 import { Files } from "@src/core/files/entities/file.entity";
 import { Link } from "@src/core/contributions/entities/link.entity";
-
-const COMPATIBILITY_GOOGLE_DOCS = true;
-
-function getCustomTableCellWidth(amount: number = 100) {
-  const percentageAmount = amount / 100;
-
-  if (COMPATIBILITY_GOOGLE_DOCS)
-    return {
-      width: {
-        size: 4505 * percentageAmount,
-        type: WidthType.DXA,
-      },
-    };
-
-  return {
-    width: {
-      size: 100 * percentageAmount,
-      type: WidthType.PERCENTAGE,
-    },
-  };
-}
-
-function getColumnWidthsTable() {
-  if (COMPATIBILITY_GOOGLE_DOCS) {
-    return { columnWidths: [4505, 4505] };
-  }
-  return {
-    width: {
-      size: 100,
-      type: WidthType.PERCENTAGE,
-    },
-  };
-}
+import { getColumnWidthsTable, getCustomTableCellWidth } from "./width-utils";
+import { ImageCellCreator } from "./image-cell-creator";
+import FileClassificator from "./file-classificator";
 
 interface DptoDetailed extends Dpto {
   contributionsOnCriteria: Contribution[];
@@ -55,7 +25,7 @@ interface DptoDetailed extends Dpto {
 
 @Injectable()
 export class RenderContributions {
-  constructor() {}
+  constructor(private imageCellCreator: ImageCellCreator) {}
 
   private getProccessedDepartments(contributions: Contribution[]): DptoDetailed[] {
     const departments: DptoDetailed[] = [];
@@ -77,12 +47,12 @@ export class RenderContributions {
     return departments;
   }
 
-  render(criteria: Criteria) {
+  async render(criteria: Criteria) {
     try {
       let paragraphArray = [];
       const departments = this.getProccessedDepartments(criteria.categories.contribution);
 
-      departments.forEach((department) => {
+      for (const department of departments) {
         paragraphArray.push(
           new Paragraph({
             text: `Departamento ${[department.name]}`,
@@ -90,221 +60,224 @@ export class RenderContributions {
             alignment: AlignmentType.LEFT,
           }),
         );
-
-        paragraphArray.push(...generateTables(department.contributionsOnCriteria));
-      });
+        const result = await this.generateTables(department.contributionsOnCriteria);
+        paragraphArray.push(...result);
+      }
 
       return [...paragraphArray];
     } catch (error) {
       console.log(error);
     }
   }
-}
 
-function generateTables(contributions: Contribution[]): Table[] {
-  const tables = [];
+  async generateTables(contributions: Contribution[]): Promise<Table[]> {
+    const tables = [];
 
-  contributions.forEach((contribution) => {
-    const table = new Table({
-      ...getColumnWidthsTable(),
-      rows: [
-        new TableRow({
-          children: [
-            new TableCell({
-              columnSpan: 2,
-              children: [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `Aporte #${contribution.id}`,
-                      color: "FFFFFF", // Texto blanco
-                      bold: true, // Texto en negrita
-                    }),
-                  ],
-                  heading: HeadingLevel.HEADING_4,
-                  alignment: AlignmentType.CENTER,
-                }),
-              ],
-              shading: {
-                type: ShadingType.CLEAR,
-                color: "00FF00", // Verde bonito
-                fill: "008040", // Verde bonito más opaco
-              },
-              ...getCustomTableCellWidth(100),
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              columnSpan: 2,
-              children: [new Paragraph(contribution.description)],
-              ...getCustomTableCellWidth(100),
-            }),
-          ],
-        }),
+    for (const contribution of contributions) {
+      const filesArchivosList = contribution.files.filter((file) => {
+        return !FileClassificator.isImage(file);
+      });
+      const filesImagenesList = contribution.files.filter((file) => {
+        return FileClassificator.isImage(file);
+      });
 
-        new TableRow({
-          children: [
-            new TableCell({
-              columnSpan: 2,
-              children: [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `Fotos`,
-                      color: "FFFFFF", // Texto blanco
-                      bold: true, // Texto en negrita
-                    }),
-                  ],
-                }),
-              ],
-              shading: {
-                type: ShadingType.CLEAR,
-                color: "00FF00", // Verde bonito
-                fill: "00B050", // Verde bonito
-              },
-              ...getCustomTableCellWidth(100),
-            }),
-          ],
-        }),
-        ...getPhotosMap(contribution.files),
-        new TableRow({
-          children: [
-            new TableCell({
-              columnSpan: 1,
-              children: [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `Links`,
-                      color: "FFFFFF", // Texto blanco
-                      bold: true, // Texto en negrita
-                    }),
-                  ],
-                }),
-              ],
-              shading: {
-                type: ShadingType.CLEAR,
-                color: "00FF00", // Verde bonito
-                fill: "00B050", // Verde bonito
-              },
-              ...getCustomTableCellWidth(50),
-            }),
-            new TableCell({
-              columnSpan: 1,
-              children: [
-                new Paragraph({
-                  children: [
-                    new TextRun({
-                      text: `Archivos`,
-                      color: "FFFFFF", // Texto blanco
-                      bold: true, // Texto en negrita
-                    }),
-                  ],
-                }),
-              ],
-              shading: {
-                type: ShadingType.CLEAR,
-                color: "00FF00", // Verde bonito
-                fill: "00B050", // Verde bonito
-              },
-              ...getCustomTableCellWidth(50),
-            }),
-          ],
-        }),
-        new TableRow({
-          children: [
-            new TableCell({
-              children: [
-                new Paragraph({
-                  children: getFlatMapLinks(contribution.link),
-                }),
-              ],
-              ...getCustomTableCellWidth(50),
-              columnSpan: 1,
-            }),
-            new TableCell({
-              children: [
-                new Paragraph({
-                  children: getFlatMapFiles(contribution.files),
-                }),
-              ],
-              ...getCustomTableCellWidth(50),
-              columnSpan: 1,
-            }),
-          ],
-        }),
-      ],
-    });
+      const resultPhotosMap = await this.getPhotosMap(filesImagenesList);
 
-    tables.push(table);
-  });
+      const table = new Table({
+        ...getColumnWidthsTable(),
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Aporte #${contribution.id}`,
+                        color: "FFFFFF", // Texto blanco
+                        bold: true, // Texto en negrita
+                      }),
+                    ],
+                    heading: HeadingLevel.HEADING_4,
+                    alignment: AlignmentType.CENTER,
+                  }),
+                ],
+                shading: {
+                  type: ShadingType.CLEAR,
+                  color: "00FF00", // Verde bonito
+                  fill: "008040", // Verde bonito más opaco
+                },
+                ...getCustomTableCellWidth(100),
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                children: [new Paragraph(contribution.description)],
+                ...getCustomTableCellWidth(100),
+              }),
+            ],
+          }),
 
-  return tables;
-}
-
-function getPhotosMap(files: Files[]) {
-  if (!Array.isArray(files) || !files || !files.length)
-    return [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: [],
-            ...getCustomTableCellWidth(100),
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 2,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Fotos`,
+                        color: "FFFFFF", // Texto blanco
+                        bold: true, // Texto en negrita
+                      }),
+                    ],
+                  }),
+                ],
+                shading: {
+                  type: ShadingType.CLEAR,
+                  color: "00FF00", // Verde bonito
+                  fill: "00B050", // Verde bonito
+                },
+                ...getCustomTableCellWidth(100),
+              }),
+            ],
+          }),
+          ...resultPhotosMap,
+          new TableRow({
+            children: [
+              new TableCell({
+                columnSpan: 1,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Links`,
+                        color: "FFFFFF", // Texto blanco
+                        bold: true, // Texto en negrita
+                      }),
+                    ],
+                  }),
+                ],
+                shading: {
+                  type: ShadingType.CLEAR,
+                  color: "00FF00", // Verde bonito
+                  fill: "00B050", // Verde bonito
+                },
+                ...getCustomTableCellWidth(50),
+              }),
+              new TableCell({
+                columnSpan: 1,
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({
+                        text: `Archivos`,
+                        color: "FFFFFF", // Texto blanco
+                        bold: true, // Texto en negrita
+                      }),
+                    ],
+                  }),
+                ],
+                shading: {
+                  type: ShadingType.CLEAR,
+                  color: "00FF00", // Verde bonito
+                  fill: "00B050", // Verde bonito
+                },
+                ...getCustomTableCellWidth(50),
+              }),
+            ],
+          }),
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: getFlatMapLinks(contribution.link),
+                  }),
+                ],
+                ...getCustomTableCellWidth(50),
+                columnSpan: 1,
+              }),
+              new TableCell({
+                children: [
+                  new Paragraph({
+                    children: getFlatMapFiles(filesArchivosList),
+                  }),
+                ],
+                ...getCustomTableCellWidth(50),
+                columnSpan: 1,
+              }),
+            ],
           }),
         ],
-      }),
-    ];
+      });
 
-  // Divide el arreglo de files en varios arreglos de 2
-  const filesTwoPairs: Files[][] = files.reduce((resultArray, item, index) => {
-    const chunkIndex = Math.floor(index / 2);
-
-    if (!resultArray[chunkIndex]) {
-      resultArray[chunkIndex] = [];
+      tables.push(table);
     }
 
-    resultArray[chunkIndex].push(item);
+    return tables;
+  }
 
-    return resultArray;
-  }, []);
-
-  const photoRows = [];
-
-  filesTwoPairs.forEach((pair) => {
-    if (!pair.length) return;
-
-    const photoCells = [];
-    pair.forEach((photo) => {
-      photoCells.push(
-        new TableCell({
-          columnSpan: 1,
-          children: [new Paragraph(photo.description)],
-          ...getCustomTableCellWidth(50),
+  async getPhotosMap(files: Files[]) {
+    if (!Array.isArray(files) || !files || !files.length)
+      return [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [],
+              ...getCustomTableCellWidth(100),
+            }),
+          ],
         }),
-      );
-    });
+      ];
 
-    // Si habia una sola foto, añade otro espacio vacio pa rellenar
-    if (photoCells.length <= 1) {
-      photoCells.push(
-        new TableCell({
-          columnSpan: 1,
-          children: [],
-          ...getCustomTableCellWidth(50),
+    // Divide el arreglo de files en varios arreglos de 2
+    const filesTwoPairs: Files[][] = files.reduce((resultArray, item, index) => {
+      const chunkIndex = Math.floor(index / 2);
+
+      if (!resultArray[chunkIndex]) {
+        resultArray[chunkIndex] = [];
+      }
+
+      resultArray[chunkIndex].push(item);
+
+      return resultArray;
+    }, []);
+
+    const photoRows = [];
+
+    for (const pair of filesTwoPairs) {
+      if (!pair.length) return;
+
+      const photoCells = [];
+      for (const photo of pair) {
+        photoCells.push(await this.imageCellCreator.createImageCell(photo));
+      }
+
+      // Si habia una sola foto, añade otro espacio vacio pa rellenar
+      if (photoCells.length <= 1) {
+        photoCells.push(
+          new TableCell({
+            columnSpan: 1,
+            children: [],
+            ...getCustomTableCellWidth(50),
+          }),
+        );
+      }
+
+      photoRows.push(
+        new TableRow({
+          children: photoCells,
         }),
       );
     }
 
-    photoRows.push(
-      new TableRow({
-        children: photoCells,
-      }),
-    );
-  });
-
-  return photoRows;
+    return photoRows;
+  }
 }
 
 function getFlatMapLinks(links: Link[]) {

@@ -70,6 +70,7 @@ export class ExportDocxAction {
   }
 
   async execute(criteria: Criteria): Promise<Buffer> {
+    const result = await this.renderContributions.render(criteria);
     const doc = new Document({
       creator: "GreenieMetric",
       title: `Greenie Metric - Report #${criteria.indicator.index}.${criteria.index} ${criteria.englishName}`,
@@ -170,7 +171,7 @@ export class ExportDocxAction {
       sections: [
         {
           properties: {},
-          children: [...this.renderHeader.render(criteria), ...this.renderContributions.render(criteria)],
+          children: [...this.renderHeader.render(criteria), ...result],
         },
       ],
     });

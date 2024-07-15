@@ -107,7 +107,6 @@ export class PutContributionAction {
     //throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
     console.log("Create", createContributionDto);
     this.throwWhenDateLimitReachedForSubmitContribution();
-
     let { files, categoryId, indicatorID, ...data } = createContributionDto;
 
     const activeUser = await this.getActiveUserOrThrow(user);
@@ -118,6 +117,7 @@ export class PutContributionAction {
     const newContribution = this.contributionReposiroty.create({
       ...data,
     });
+
     // Relacionamos la contribucion a la category
     newContribution.category = category;
     newContribution.user = activeUser;
@@ -133,11 +133,11 @@ export class PutContributionAction {
     const admins = await this.userRepository.find({
       where: { role: Equal(UserRole.ADMIN) },
     });
-
+    console.log("------------> 8");
     let uuidSetting = `81ed6231-5be6-4166-9118-d982038a2fc7`;
 
     const setting = await this.settingService.findOne(uuidSetting);
-
+    console.log("------------> 9");
     if (setting.contributionSettings.getNotificationForContribution) {
       await Promise.all(
         admins.map(async (admin) => {
@@ -149,7 +149,7 @@ export class PutContributionAction {
         }),
       );
     }
-
+    console.log("------------> 11");
     return await this.getContributionAction.findOneByUUID(contribution.uuid);
   }
 
