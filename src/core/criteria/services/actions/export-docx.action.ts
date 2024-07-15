@@ -17,6 +17,7 @@ import {
 import { RenderHeader } from "./render-header";
 import { RenderContributions } from "./render-contribution";
 import { Criteria } from "../../entities/criteria.entity";
+import { COMPATIBILITY_GOOGLE_DOCS } from "./width-utils";
 
 @Injectable()
 export class ExportDocxAction {
@@ -25,51 +26,9 @@ export class ExportDocxAction {
     private renderContributions: RenderContributions,
   ) {}
 
-  async executeOld(criteria: Criteria): Promise<Buffer> {
-    const doc = new Document({
-      sections: [
-        {
-          properties: {
-            page: {
-              margin: {
-                top: convertInchesToTwip(1),
-                right: convertInchesToTwip(1),
-                bottom: convertInchesToTwip(1),
-                left: convertInchesToTwip(1),
-              },
-            },
-          },
-          children: [
-            new Table({
-              width: {
-                size: 100,
-                type: WidthType.PERCENTAGE,
-              },
-              rows: [
-                new TableRow({
-                  children: [
-                    new TableCell({
-                      children: [new Paragraph("Cell 1")],
-                      width: { size: 50, type: WidthType.PERCENTAGE },
-                    }),
-                    new TableCell({
-                      children: [new Paragraph("Cell 2")],
-                      width: { size: 50, type: WidthType.PERCENTAGE },
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        },
-      ],
-    });
-
-    const buffer = await Packer.toBuffer(doc);
-    return buffer;
-  }
-
   async execute(criteria: Criteria): Promise<Buffer> {
+    const sizeCorrector = COMPATIBILITY_GOOGLE_DOCS ? 2 : 1;
+
     const result = await this.renderContributions.render(criteria);
     const doc = new Document({
       creator: "GreenieMetric",
@@ -79,7 +38,7 @@ export class ExportDocxAction {
         default: {
           heading1: {
             run: {
-              size: 32,
+              size: 18 * sizeCorrector,
               bold: true,
               color: "008800",
             },
@@ -91,7 +50,7 @@ export class ExportDocxAction {
           },
           heading2: {
             run: {
-              size: 26,
+              size: 16 * sizeCorrector,
               bold: true,
               underline: {
                 type: UnderlineType.SINGLE,
@@ -107,7 +66,7 @@ export class ExportDocxAction {
           },
           heading3: {
             run: {
-              size: 24,
+              size: 14 * sizeCorrector,
               bold: true,
               color: "006600",
             },
@@ -120,7 +79,7 @@ export class ExportDocxAction {
           },
           heading4: {
             run: {
-              size: 20,
+              size: 12 * sizeCorrector,
               bold: true,
               color: "004400",
             },
@@ -133,7 +92,7 @@ export class ExportDocxAction {
           },
           heading5: {
             run: {
-              size: 16,
+              size: 10 * sizeCorrector,
               bold: true,
               color: "669966",
             },
@@ -146,7 +105,7 @@ export class ExportDocxAction {
           },
           document: {
             run: {
-              size: 16,
+              size: 10 * sizeCorrector,
               font: "Calibri",
               color: "000000",
             },

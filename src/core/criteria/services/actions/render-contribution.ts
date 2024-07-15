@@ -194,20 +194,12 @@ export class RenderContributions {
           new TableRow({
             children: [
               new TableCell({
-                children: [
-                  new Paragraph({
-                    children: getFlatMapLinks(contribution.link),
-                  }),
-                ],
+                children: [...getFlatMapLinks(contribution.link)],
                 ...getCustomTableCellWidth(50),
                 columnSpan: 1,
               }),
               new TableCell({
-                children: [
-                  new Paragraph({
-                    children: getFlatMapFiles(filesArchivosList),
-                  }),
-                ],
+                children: [...getFlatMapFiles(filesArchivosList)],
                 ...getCustomTableCellWidth(50),
                 columnSpan: 1,
               }),
@@ -280,21 +272,28 @@ export class RenderContributions {
   }
 }
 
-function getFlatMapLinks(links: Link[]) {
+function getFlatMapLinks(links: Link[]): Paragraph[] {
   if (!Array.isArray(links) || !links || !links.length) return [];
 
   return links.flatMap((link) => {
     return [
-      new TextRun({
-        text: `- ${link.description} (${link.URL})`,
-        break: 1,
-        style: "textWrap",
-      }),
-      new TextRun({
-        text: link.URL,
-        bold: false,
-        style: "Hyperlink",
-        break: 1,
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `${link.description}\n`,
+          }),
+          new TextRun({
+            text: link.URL,
+            bold: false,
+            style: "Hyperlink",
+          }),
+        ],
+        bullet: {
+          level: 0,
+        },
+        indent: {
+          left: 300, // Modify the left indent value here
+        },
       }),
     ];
   });
@@ -305,16 +304,23 @@ function getFlatMapFiles(files: Files[]) {
 
   return files.flatMap((file) => {
     return [
-      new TextRun({
-        text: `- ${file.description} (${file.path})`,
-        break: 1,
-        style: "textWrap",
-      }),
-      new TextRun({
-        text: file.path,
-        bold: false,
-        style: "Hyperlink",
-        break: 1,
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `${file.description}\n`,
+          }),
+          new TextRun({
+            text: file.path,
+            bold: false,
+            style: "Hyperlink",
+          }),
+        ],
+        bullet: {
+          level: 0,
+        },
+        indent: {
+          left: 300, // Modify the left indent value here
+        },
       }),
     ];
   });

@@ -1,6 +1,6 @@
 import { WidthType } from "docx";
 
-const COMPATIBILITY_GOOGLE_DOCS = true;
+export const COMPATIBILITY_GOOGLE_DOCS = true;
 
 export function getCustomTableCellWidth(amount: number = 100) {
   const percentageAmount = amount / 100;
