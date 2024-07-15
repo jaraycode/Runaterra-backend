@@ -35,12 +35,15 @@ export class ExportDocxAction {
   async execute(criteria: Criteria): Promise<Buffer> {
     const sizeCorrector = COMPATIBILITY_GOOGLE_DOCS ? 2 : 1;
 
+    const projectAbsolutePath = process.cwd() + "/src/images";
+    console.log("projectAbsolutePath", projectAbsolutePath);
+
     const headerAllPages = new Header({
       children: [
         new Paragraph({
           children: [
             new ImageRun({
-              data: fs.readFileSync("./images/Ucab.png"),
+              data: fs.readFileSync(projectAbsolutePath + "/Ucab.png"),
               transformation: {
                 width: 300,
                 height: 43,
@@ -57,7 +60,7 @@ export class ExportDocxAction {
               },
             }),
             new ImageRun({
-              data: fs.readFileSync("./images/GM.png"),
+              data: fs.readFileSync(projectAbsolutePath + "/GM.png"),
               transformation: {
                 width: 115,
                 height: 85,
