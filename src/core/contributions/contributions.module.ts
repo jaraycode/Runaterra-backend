@@ -10,9 +10,15 @@ import { SettingsModule } from "../settings/settings.module";
 import { GetContributionAction } from "./services/get-contribution.action";
 import { PutContributionAction } from "./services/put-contribution.action";
 import { Indicator } from "../indicators/entities/indicator.entity";
+import { MailsModule } from "../mails/mails.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Contribution, Category, User, Indicator]), FilesModule, SettingsModule],
+  imports: [
+    TypeOrmModule.forFeature([Contribution, Category, User, Indicator]),
+    FilesModule,
+    SettingsModule,
+    MailsModule,
+  ],
   controllers: [ContributionsController],
   providers: [ContributionsService, GetContributionAction, PutContributionAction],
   exports: [ContributionsService],

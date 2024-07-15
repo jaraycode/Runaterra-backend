@@ -9,12 +9,11 @@ import { User } from "@src/core/users/entities/user.entity";
 import { UserActiveInterface } from "@src/common/interface/user.active.interface";
 import { SettingsService } from "@src/core/settings/service/settings.service";
 import { GetContributionAction } from "./get-contribution.action";
-import { UpdateContributionDto } from "../dto/update-contribution.dto";
-import { Link } from "../entities/link.entity";
-import { CreateLinkDto } from "../dto/link.dto";
 import { Setting } from "@src/core/settings/entities/setting.entity";
 import { PutFormattedContributionDto } from "../dto/put-formatted-contribution.dto";
 import { Indicator } from "@src/core/indicators/entities/indicator.entity";
+import { UserRole } from "@src/constants";
+import { MailsService } from "@src/core/mails/service/mails.service";
 
 @Injectable()
 export class PutContributionAction {
@@ -30,6 +29,7 @@ export class PutContributionAction {
     private readonly categoryRepository: Repository<Category>,
     private readonly settingService: SettingsService,
     private readonly getContributionAction: GetContributionAction,
+    private readonly mailService: MailsService,
   ) {}
 
   private async getSettingsOrThrowWheNotExists(): Promise<Setting[]> {
@@ -129,6 +129,26 @@ export class PutContributionAction {
 
     // Guardamos los archivos
     await Promise.all(files.map((fileItem) => this.filesService.createOrUpdate(fileItem, contribution)));
+
+    const admins = await this.userRepository.find({
+      where: { role: Equal(UserRole.ADMIN) },
+    });
+
+    let uuidSetting = `81ed6231-5be6-4166-9118-d982038a2fc7`;
+
+    const setting = await this.settingService.findOne(uuidSetting);
+
+    if (setting.contributionSettings.getNotificationForContribution) {
+      await Promise.all(
+        admins.map(async (admin) => {
+          await this.mailService.sendMail({
+            email: admin.email,
+            subject: "Nueva contribución",
+            message: `El departamento ${activeUser.department.name} ha creado una nueva contribución con uuid: ${contribution.uuid}`,
+          });
+        }),
+      );
+    }
 
     return await this.getContributionAction.findOneByUUID(contribution.uuid);
   }

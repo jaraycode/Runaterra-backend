@@ -56,6 +56,10 @@ export class UsersService {
     return newUser;
   }
 
+  async findAllNotPaginated(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
     const queryBuilder = await this.userRepository.createQueryBuilder("user");
 
