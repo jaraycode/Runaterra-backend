@@ -67,9 +67,6 @@ export class SettingsService {
     const initDateISO = new Date(initDate);
     const endDateISO = new Date(endDate);
 
-    if (this.verifyDates(new Date(today.toISOString()), new Date(endDateISO.toISOString())))
-      throw new BadRequestException("Dates are before today's date");
-
     if (this.verifyDates(new Date(initDateISO.toISOString()), new Date(endDateISO.toISOString())))
       throw new BadRequestException("Begin date is after deadline");
 
