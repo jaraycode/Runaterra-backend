@@ -52,6 +52,8 @@ export class RenderContributions {
       let paragraphArray = [];
       const departments = this.getProccessedDepartments(criteria.categories.contribution);
 
+      console.log("===================>", departments);
+
       for (const department of departments) {
         paragraphArray.push(
           new Paragraph({
