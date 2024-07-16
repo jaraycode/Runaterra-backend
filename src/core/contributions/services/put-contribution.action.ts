@@ -165,7 +165,7 @@ export class PutContributionAction {
     let { files, categoryId, indicatorID, ...data } = updateContributionDto;
 
     contributionByUUID.category = await this.getCategoryOrThrow(categoryId);
-    contributionByUUID.user = await this.getActiveUserOrThrow(user);
+    //contributionByUUID.user = await this.getActiveUserOrThrow(user);
     await this.contributionReposiroty.save(contributionByUUID);
 
     const result = await this.contributionReposiroty
