@@ -76,6 +76,7 @@ export class DptosService {
       let filteredCategories = await this.potencialCategories(allCategories, d);
 
       matrix.push({
+        departmentId: d.id,
         departmentName: d.name,
         categories: filteredCategories,
       });
