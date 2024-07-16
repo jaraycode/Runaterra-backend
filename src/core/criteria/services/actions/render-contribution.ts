@@ -52,12 +52,10 @@ export class RenderContributions {
       let paragraphArray = [];
       const departments = this.getProccessedDepartments(criteria.categories.contribution);
 
-      console.log("===================>", departments);
-
       for (const department of departments) {
         paragraphArray.push(
           new Paragraph({
-            text: `Departament ${[department.name]}`,
+            text: `Department ${[department.name]}`,
             heading: HeadingLevel.HEADING_3,
             alignment: AlignmentType.LEFT,
           }),

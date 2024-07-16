@@ -14,7 +14,7 @@ export class RenderHeader {
 
     return [
       new Paragraph({
-        text: "Greenie Metric Template",
+        text: "Greenie Metrics Template",
         heading: HeadingLevel.HEADING_1,
         alignment: AlignmentType.CENTER,
       }),
