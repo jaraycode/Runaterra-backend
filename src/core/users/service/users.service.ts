@@ -41,10 +41,6 @@ export class UsersService {
       throw new BadRequestException("El departamento no existe");
     }
 
-    if (userDpto && userDpto.some((user) => user.role === "dpto")) {
-      throw new BadRequestException("El departamento ya tiene un usuario con el rol dpto");
-    }
-
     const password = await bcryptjs.hash(createUserDto.password, 10);
 
     const { departmentId, ...data } = createUserDto;
