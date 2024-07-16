@@ -30,12 +30,6 @@ export class SettingsService {
 
     const { initDate, endDate, ...dataContributions } = contributionSettings;
 
-    const initDateISO = new Date(initDate);
-    const endDateISO = new Date(endDate);
-
-    if (this.verifyDates(new Date(initDateISO.toISOString()), new Date(endDateISO.toISOString())))
-      throw new BadRequestException("Begin date is after deadline");
-
     const settings = await this.settingsRepository.create({
       ...data,
       contributionSettings: { ...dataContributions, initDate: initDate, endDate: endDate },
