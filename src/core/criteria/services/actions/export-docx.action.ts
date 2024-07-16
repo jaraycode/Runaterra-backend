@@ -102,39 +102,39 @@ export class ExportDocxAction {
           },
           heading2: {
             run: {
-              size: 15 * sizeCorrector,
+              size: 14 * sizeCorrector,
               bold: true,
             },
             paragraph: {
               spacing: {
-                before: 240,
-                after: 120,
+                before: 190,
+                after: 70,
               },
             },
           },
           heading3: {
             run: {
-              size: 13 * sizeCorrector,
+              size: 12 * sizeCorrector,
               bold: true,
               color: "006600",
             },
             paragraph: {
               spacing: {
-                before: 200,
-                after: 100,
+                before: 160,
+                after: 60,
               },
             },
           },
           heading4: {
             run: {
-              size: 12 * sizeCorrector,
+              size: 10 * sizeCorrector,
               bold: true,
               color: "004400",
             },
             paragraph: {
               spacing: {
-                before: 160,
-                after: 80,
+                before: 120,
+                after: 60,
               },
             },
           },

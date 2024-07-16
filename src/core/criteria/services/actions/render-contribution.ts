@@ -132,15 +132,15 @@ export class RenderContributions {
                       new TextRun({
                         text: `Photos`,
                         color: "FFFFFF", // Texto blanco
-                        bold: true, // Texto en negrita
+                        bold: false, // Texto en negrita
                       }),
                     ],
                   }),
                 ],
                 shading: {
                   type: ShadingType.CLEAR,
-                  color: "00FF00", // Verde bonito
-                  fill: "00B050", // Verde bonito
+                  color: "808080", // Verde bonito
+                  fill: "808080", // Verde bonito
                 },
                 ...getCustomTableCellWidth(100),
               }),
@@ -157,15 +157,15 @@ export class RenderContributions {
                       new TextRun({
                         text: `Links`,
                         color: "FFFFFF", // Texto blanco
-                        bold: true, // Texto en negrita
+                        bold: false, // Texto en negrita
                       }),
                     ],
                   }),
                 ],
                 shading: {
                   type: ShadingType.CLEAR,
-                  color: "00FF00", // Verde bonito
-                  fill: "00B050", // Verde bonito
+                  color: "808080", // Verde bonito
+                  fill: "808080", // Verde bonito
                 },
                 ...getCustomTableCellWidth(50),
               }),
@@ -177,15 +177,15 @@ export class RenderContributions {
                       new TextRun({
                         text: `Files`,
                         color: "FFFFFF", // Texto blanco
-                        bold: true, // Texto en negrita
+                        bold: false, // Texto en negrita
                       }),
                     ],
                   }),
                 ],
                 shading: {
                   type: ShadingType.CLEAR,
-                  color: "00FF00", // Verde bonito
-                  fill: "00B050", // Verde bonito
+                  color: "808080", // Verde bonito
+                  fill: "808080", // Verde bonito
                 },
                 ...getCustomTableCellWidth(50),
               }),
@@ -280,12 +280,15 @@ function getFlatMapLinks(links: Link[]): Paragraph[] {
       new Paragraph({
         children: [
           new TextRun({
-            text: `${link.description}\n`,
-          }),
-          new TextRun({
             text: link.URL,
             bold: false,
             style: "Hyperlink",
+          }),
+          new TextRun({
+            text: `\n`,
+          }),
+          new TextRun({
+            text: `${link.description}`,
           }),
         ],
         bullet: {
@@ -307,12 +310,15 @@ function getFlatMapFiles(files: Files[]) {
       new Paragraph({
         children: [
           new TextRun({
-            text: `${file.description}\n`,
-          }),
-          new TextRun({
             text: file.path,
             bold: false,
             style: "Hyperlink",
+          }),
+          new TextRun({
+            text: `\n`,
+          }),
+          new TextRun({
+            text: `${file.description}`,
           }),
         ],
         bullet: {

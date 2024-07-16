@@ -113,7 +113,7 @@ export class CriteriaController {
       res.set({
         "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         //"Content-Type": "application/octet-stream",
-        "Content-Disposition": "attachment; filename=example.docx",
+        "Content-Disposition": `attachment; filename=GreenieMetricReport.docx`,
         "Content-Length": buffer.length,
       });
 
