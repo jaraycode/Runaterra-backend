@@ -62,7 +62,7 @@ export class PutContributionAction {
   private async getActiveUserOrThrow(user: UserActiveInterface): Promise<User> {
     const activeUser = await this.userRepository.findOne({
       where: { id: Equal(user.id) },
-      relations: ["contributions"],
+      relations: ["contributions", "department"],
     });
 
     if (!activeUser) {
@@ -105,7 +105,6 @@ export class PutContributionAction {
 
   async create(createContributionDto: PutFormattedContributionDto, user: UserActiveInterface) {
     //throw new BadRequestException("Fecha no disponible para subir nuevos aportes");
-    console.log("Create", createContributionDto);
     this.throwWhenDateLimitReachedForSubmitContribution();
     let { files, categoryId, indicatorID, ...data } = createContributionDto;
 
@@ -139,12 +138,13 @@ export class PutContributionAction {
     const setting = await this.settingService.findOne(uuidSetting);
 
     if (setting?.contributionSettings?.getNotificationForContribution) {
+      const nameDepartment = activeUser.department.name ? activeUser.department.name : activeUser.name;
       await Promise.all(
         admins.map(async (admin) => {
           await this.mailService.sendMail({
             email: admin.email,
             subject: "Nueva contribución",
-            message: `El departamento ${activeUser.department.name} ha creado una nueva contribución con uuid: ${contribution.uuid}`,
+            message: `El departamento ${nameDepartment} ha creado una nueva contribución con uuid: ${contribution.uuid}`,
           });
         }),
       );
