@@ -6,6 +6,8 @@ import { envData } from "@src/config/typeorm";
 import { UsersModule } from "../users/users.module";
 import { SettingsModule } from "../settings/settings.module";
 import { ScheduleModule } from "@nestjs/schedule";
+import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
+import { join } from "path";
 
 @Module({
   imports: [
@@ -16,6 +18,13 @@ import { ScheduleModule } from "@nestjs/schedule";
         auth: {
           user: envData.EMAIL_USERNAME,
           pass: envData.EMAIL_PASSWORD,
+        },
+      },
+      template: {
+        dir: join(__dirname, "template"),
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
         },
       },
     }),

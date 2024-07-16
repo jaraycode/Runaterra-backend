@@ -47,7 +47,11 @@ export class CriteriaService {
     const queryBuilder = await this.criteriaRepository.createQueryBuilder("criteria");
 
     queryBuilder.leftJoinAndSelect("criteria.indicator", "indicator");
-    queryBuilder.orderBy("criteria.index", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
+    queryBuilder
+      .orderBy("criteria.index", pageOptionsDto.order)
+      .addOrderBy("indicator.index", pageOptionsDto.order)
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
 
     if (pageOptionsDto.indicatorId) {
       queryBuilder.where("criteria.indicator = :indicator", { indicator: pageOptionsDto.indicatorId });

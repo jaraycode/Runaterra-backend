@@ -6,7 +6,7 @@ import { SendEmailDto } from "./dto/sendEmail.dto";
 export class MailsController {
   constructor(private readonly mailsService: MailsService) {}
 
-  @Get()
+  @Post()
   async sendMail(@Body() sendEmailDto: SendEmailDto) {
     return await this.mailsService.sendMail(sendEmailDto);
   }

@@ -16,13 +16,18 @@ export class MailsService {
 
   private readonly logs = new Logger(MailsService.name);
 
+  private readonly template = "./email";
+
   async sendMail(sendEmailDto: SendEmailDto) {
     this.logs.log("enviando correo");
     await this.mailsService.sendMail({
       from: `Greenie Metric <${process.env.EMAIL_USERNAME}>`,
       to: sendEmailDto.email,
       subject: sendEmailDto.subject,
-      text: sendEmailDto.message,
+      template: this.template,
+      context: {
+        message: sendEmailDto.message,
+      },
     });
   }
 

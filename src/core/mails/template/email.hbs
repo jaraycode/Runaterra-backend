@@ -1,0 +1,67 @@
+<style>
+  /* Global styles */
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  /* Container styles */
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Header styles */
+  .header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .header h2 {
+    margin: 0;
+  }
+
+  /* Transaction details styles */
+  .transaction-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .transaction-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .transaction-details li {
+    margin-bottom: 10px;
+  }
+
+  .transaction-details li label {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .transaction-details li span {
+    font-size: 16px;
+  }
+</style>
+
+<!-- HBS template -->
+<div class="container">
+  <div class="header">
+    <h2>Estimado Usuario</h2>
+  </div>
+  <div class="transaction-details">
+    <ul>
+      <li><span>{{message}}</span></li>
+    </ul>
+  </div>
+</div>
