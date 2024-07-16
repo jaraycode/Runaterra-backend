@@ -51,7 +51,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new FormdataInterceptor({
       customFileName(context, originalFileName) {
-        return `${Date.now()}-${uuid()}${path.extname(originalFileName)}`;
+        return `${Date.now()}-${uuid()}`;
       },
       fileSaver: new DefaultFileSaver({
         prefixDirectory: "./public",
