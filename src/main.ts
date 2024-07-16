@@ -12,6 +12,7 @@ import { ConfigService } from "@nestjs/config";
 import { FormdataInterceptor, DefaultFileSaver } from "nestjs-formdata-interceptor";
 import * as multer from "multer";
 import { ValidationPipe } from "@nestjs/common";
+import { v4 as uuid } from "uuid";
 
 async function bootstrap() {
   const PORT = process.env.PORT || 8000;
@@ -50,7 +51,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     new FormdataInterceptor({
       customFileName(context, originalFileName) {
-        return `${Date.now()}-${originalFileName}`;
+        return `${Date.now()}-${uuid()}${path.extname(originalFileName)}`;
       },
       fileSaver: new DefaultFileSaver({
         prefixDirectory: "./public",
